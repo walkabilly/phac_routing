@@ -1,0 +1,325 @@
+---
+title: "Google Routing"
+output:
+  html_document:
+    keep_md: yes
+date: "2023-12-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(googleway)
+library(tidyverse)
+library(ggmap)
+library(sf)
+library(sfext)
+library(googlePolylines)
+library(mapview)
+library(jsonlite)
+googleway::set_key(key = map_key)
+ggmap::register_google(map_key)
+```
+
+https://stackoverflow.com/questions/59775761/drawing-driving-routes-in-r
+
+# Setup data frame to be filled in
+
+Cities and stations
+
+1. Ottawa
+    * Fallowfield Station
+    * Millennium / Trim
+2. Montreal 
+    * Brossard Station
+    * Rivière-des-Prairies Station
+3. Toronto
+    * Vaughan Metropolitan Centre Stations
+    * Scarborough GO Station
+4. Vancouver
+    * Surrey Central Station
+    * Edgemont Village Exchange
+5. Edmonton
+    * Heritage Valley Station
+    * Nakî Transit Centre & Park and Ride
+6. Calgary
+    * North Pointe Transit Terminal
+    * McKenzie Towne
+
+# Ottawa
+## Fallowfield Station
+
+### Draw buffer and select points
+
+```{r}
+destination <- "Downtown, Ottawa, Canada"
+```
+
+### Set origin point
+
+```{r}
+origin <- "Fallowfield Station, Ottawa, Canada"
+
+stations <- geocode(location = origin, output = "more", source = "google")
+
+stations_sf <- stations %>%
+                st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+stations_buffer = st_buffer(stations_sf, 5000)
+
+stations_buffer <- as_sf(stations_buffer)
+```
+
+#### Interactive map view of buffers
+
+```{r}
+mapview(stations_buffer)
+```
+
+#### Generate points within buffer
+
+```{r}
+points_sample_sf <- st_sample(stations_buffer, size = c(25,25), type = "random")
+points_sample_sf <- st_as_sf(points_sample_sf)
+points_sample <- sf_to_df(points_sample_sf)
+```
+
+#### Check to see if they worked
+
+```{r}
+ottawa_check_buffer <- stations_buffer %>% slice(1:2)
+
+plot(st_geometry(ottawa_check_buffer))
+plot(points_sample_sf, pch = 20, add= TRUE)
+```
+
+Setup departure location and arrival time
+
+```{r}
+arrival_time <- as.POSIXct("2024-06-01 08:30:00", tz = "America/Toronto")
+```
+
+## Reverse 
+
+## Bicycle routes for Ottawa
+
+Need to reverse geocode to get the randomly selected to origins to work
+
+```{r}
+points_sample$destination <- destination
+points_sample$lat_lon <- paste(points_sample$lat, points_sample$lon)
+```
+
+### Attempt to reverse geocode
+
+```{}
+### Reverse geocode 
+loczip <- lapply(seq(nrow(points_sample)), function(i){
+google_reverse_geocode(location = c(points_sample$lat[i],points_sample$lon[i]), 
+                       result_type = c("street_address"),
+                       location_type = "range_interpolated",
+                       simplify = TRUE)
+})
+
+### Convert to JSON and clean up
+loczip_json <- toJSON(loczip)
+parsed_locations <- fromJSON(loczip_json, simplifyVector = TRUE)
+
+glimpse(parsed_locations)
+
+### Get simple useable dataset
+test <- as.data.frame(parsed_locations$plus_code)
+test$origin <- test$compound_code
+test$destination <- destination
+test$compound_code <- NULL
+test$global_code <- NULL
+test <- as.data.frame(test)
+test <- apply(test,2,as.character)
+test <- as.data.frame(test)
+```
+
+### Checking points and general mapping
+
+```{r}
+lst_directions <- apply(points_sample, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']],    
+  )
+df_result <- data.frame(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']], 
+    route = res$routes$overview_polyline$points
+)
+return(df_result)
+})
+
+df_directions <- do.call(rbind, lst_directions)
+
+google_map() %>%
+  add_polylines(data = df_directions, polyline = "route") 
+```
+
+
+# Not run
+
+### Working on cycling data
+
+```{}
+lst_directions <- apply(points_sample, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']],    
+    arrival_time =  arrival_time,
+    mode = "bicycling",
+    alternatives = FALSE,
+    units = "metric", 
+    simplify = TRUE
+  )
+})  
+df_result <- data.frame(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']], 
+    route = res$routes$overview_polyline$points
+)
+return(df_result)
+})
+
+df_directions <- do.call(rbind, lst_directions)
+google_map() %>%
+  add_polylines(data = df_directions, polyline = "route") r)
+```
+
+
+    
+```{}    
+lst_directions_json <- toJSON(lst_directions)
+parsed_locations <- fromJSON(lst_directions_json, flatten = TRUE)
+parsed_locations <- fromJSON(lst_directions)
+
+write_json(lst_directions, "test.json")
+
+test <- access_result(lst_directions, "polyline")
+
+direction_polyline(lst_directions)
+
+
+edf_result <- data.frame(
+    route = lst_directions$routes$overview_polyline$points,
+    status = res$status
+  )
+
+test <- data.frame(lst_directions[["routes"]][["legs"]][["distance"]][["value"]])
+
+duration_seconds <- ottawa_bike[["routes"]][["legs"]][[1]][["duration"]][["value"]]
+
+data$polylines <- cbind(data, lst_directions$routes$overview_polyline$points)
+
+
+lst_directions_json <- toJSON(lst_directions)
+parsed_locations <- fromJSON(lst_directions_json, simplifyDataFrame = TRUE, flatten = TRUE)
+
+glimpse(parsed_locations)
+
+ottawa_bike_lines <- decode_pl(lst_directions$overview_polyline$points)
+
+## plot the map
+google_map() %>%
+  add_polylines(data = df_directions, polyline = "route")
+```
+
+
+
+```{}
+ottawa_bike <- google_directions(origin = "Fallowfield, Ottawa, Canada",
+         destination = "Downtown, Ottawa, Canada",
+         arrival_time =  arrival_time,
+         mode = "bicycling",
+         alternatives = FALSE,
+         units = "metric")
+
+ottawa_bike[[1]]
+```
+
+### Create a data frame and map for route
+
+```{}
+ottawa_bike_df <- ottawa_bike$routes
+
+ottawa_bike_lines <- decode_pl(ottawa_bike_df$overview_polyline$points)
+
+ggmap(map) +
+  geom_point(data = ottawa_bike_lines, aes(x = lon, y = lat)) 
+```
+
+Add in distance and time to the data final data frame
+
+```{}
+distance_meters <- ottawa_bike[["routes"]][["legs"]][[1]][["distance"]][["value"]]
+duration_seconds <- ottawa_bike[["routes"]][["legs"]][[1]][["duration"]][["value"]]
+```
+
+# Transit routes for Ottawa
+
+```{}
+ottawa_transit <- google_directions(origin = "Fallowfield, Ottawa, Canada",
+         destination = "Downtown, Ottawa, Canada",
+         arrival_time =  arrival_time,
+         mode = "transit",
+         alternatives = FALSE,
+         units = "metric")
+
+ottawa_transit[[1]]
+```
+
+### Create a data frame and map for route
+
+```{}
+ottawa_transit_df <- ottawa_transit$routes
+
+ottawa_transit_lines <- decode_pl(ottawa_transit_df$overview_polyline$points)
+
+map <- get_googlemap(origin)
+
+ggmap(origin) +
+  geom_point(data = ottawa_transit_lines, aes(x = lon, y = lat)) 
+```
+
+
+## NOT RUN
+
+```{}
+df_locations<-structure(list(origin = c("WARWICK", "EAST PROVIDENCE", "WARREN", 
+                                        "CENTERDALE", "CENTRAL FALLS", "DAVISVILLE", "NORTH PROVIDENCE", 
+                                        "EAST PROVIDENCE", "PROVIDENCE", "CHEPACHET"), destination = c("CENTERDALE", "EAST PROVIDENCE", "BRISTOL", "JOHNSTON", "CRANSTON", "WARWICK","NORTH PROVIDENCE", "EAST PROVIDENCE", "WARREN", "CHEPACHET")), class = "data.frame", row.names = c(NA, -10L))
+
+## loop over each pair of locations, and extract the polyline from the result
+lst_directions <- apply(df_locations, 1, function(x){
+  res <- google_directions(
+    origin = x[['origin']]
+    , destination = x[['destination']]
+  )
+})
+
+lst_directions[[2]][ , "geocoded_waypoints"] 
+
+lst_directions <- apply(df_locations, 1, function(x){
+  df_result <- data.frame(
+    origin = x[['origin']]
+    , destination = x[['destination']]
+    , route = res$routes$overview_polyline$points
+  )
+  return(df_result)
+})
+
+df_directions <- do.call(rbind, lst_directions)
+
+## plot the map
+google_map() %>%
+  add_polylines(data = df_directions, polyline = "route")
+```
+
+         
+```{r, include = FALSE}
+clear_keys()
+```
+
