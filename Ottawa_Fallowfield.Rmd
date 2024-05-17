@@ -16,6 +16,7 @@ library(sfext)
 library(googlePolylines)
 library(mapview)
 library(jsonlite)
+library(collapse)
 googleway::set_key(key = map_key)
 ggmap::register_google(map_key)
 ```
@@ -78,6 +79,7 @@ mapview(stations_buffer)
 #### Generate points within buffer
 
 ```{r}
+set.seed(100)
 points_sample_sf <- st_sample(stations_buffer, size = c(25,25), type = "random")
 points_sample_sf <- st_as_sf(points_sample_sf)
 points_sample <- sf_to_df(points_sample_sf)
@@ -115,12 +117,12 @@ points_sample$lat_lon <- paste(points_sample$lat, points_sample$lon)
 lst_directions <- apply(points_sample, 1, function(x){
   res <- google_directions(
     origin = x[['lat_lon']], 
-    destination = x[['destination']],    
+    destination = x[['destination']]    
   )
 df_result <- data.frame(
     origin = x[['lat_lon']], 
     destination = x[['destination']], 
-    route = res$routes$overview_polyline$points
+    route = res$routes$overview_polyline$points 
 )
 return(df_result)
 })
@@ -131,166 +133,194 @@ google_map() %>%
   add_polylines(data = df_directions, polyline = "route") 
 ```
 
+# Getting cycling routes and points
 
-# Not run
-
-### Working on cycling data
-
-```{}
-lst_directions <- apply(points_sample, 1, function(x){
+```{r}
+bike_directions <- apply(points_sample, 1, function(x){
   res <- google_directions(
     origin = x[['lat_lon']], 
-    destination = x[['destination']],    
+    destination = x[['destination']],
     arrival_time =  arrival_time,
     mode = "bicycling",
     alternatives = FALSE,
-    units = "metric", 
-    simplify = TRUE
+    units = "metric"
   )
-})  
-df_result <- data.frame(
-    origin = x[['lat_lon']], 
-    destination = x[['destination']], 
-    route = res$routes$overview_polyline$points
-)
-return(df_result)
 })
-
-df_directions <- do.call(rbind, lst_directions)
-google_map() %>%
-  add_polylines(data = df_directions, polyline = "route") r)
 ```
 
+### Checking geocode and route status
 
-    
-```{}    
-lst_directions_json <- toJSON(lst_directions)
-parsed_locations <- fromJSON(lst_directions_json, flatten = TRUE)
-parsed_locations <- fromJSON(lst_directions)
-
-write_json(lst_directions, "test.json")
-
-test <- access_result(lst_directions, "polyline")
-
-direction_polyline(lst_directions)
-
-
-edf_result <- data.frame(
-    route = lst_directions$routes$overview_polyline$points,
-    status = res$status
-  )
-
-test <- data.frame(lst_directions[["routes"]][["legs"]][["distance"]][["value"]])
-
-duration_seconds <- ottawa_bike[["routes"]][["legs"]][[1]][["duration"]][["value"]]
-
-data$polylines <- cbind(data, lst_directions$routes$overview_polyline$points)
-
-
-lst_directions_json <- toJSON(lst_directions)
-parsed_locations <- fromJSON(lst_directions_json, simplifyDataFrame = TRUE, flatten = TRUE)
-
-glimpse(parsed_locations)
-
-ottawa_bike_lines <- decode_pl(lst_directions$overview_polyline$points)
-
-## plot the map
-google_map() %>%
-  add_polylines(data = df_directions, polyline = "route")
+```{r}
+get_elem(bike_directions, "status", recursive = TRUE, DF.as.list = TRUE)
 ```
 
+### Getting the distance data from transit
 
+```{r}
+distance_bike <- get_elem(bike_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_bike <- as_tibble(distance_bike)
+distance_bike <- distance_bike %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+distance_bike <- distance_bike %>%
+                            filter(!row_number() %in% c(2))
 
-```{}
-ottawa_bike <- google_directions(origin = "Fallowfield, Ottawa, Canada",
-         destination = "Downtown, Ottawa, Canada",
-         arrival_time =  arrival_time,
-         mode = "bicycling",
-         alternatives = FALSE,
-         units = "metric")
+distance_bike <- distance_bike %>% unnest(c(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14, var15, var16, var17, var18, var19, var20, var21, var22, var23, var24), names_sep = "unique", names_repair = "universal")
 
-ottawa_bike[[1]]
+distance_bike <- distance_bike %>%
+                    select(contains("value"))
+
+distance_bike <- distance_bike %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "distance_meters",
+                                values_drop_na = FALSE
+                              )
+
+distance_bike$distance_km <- distance_bike$distance_meters / 1000
+
+ggplot(distance_bike) + 
+  geom_histogram(aes(distance_km))
+
+summary(distance_bike$distance_km)
 ```
 
-### Create a data frame and map for route
+### Getting duration data for bike
 
-```{}
-ottawa_bike_df <- ottawa_bike$routes
+```{r}
+duration_bike <- get_elem(bike_directions, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_bike <- as_tibble(duration_bike)
+duration_bike <- duration_bike %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+duration_bike <- duration_bike %>%
+                            filter(!row_number() %in% c(2))
 
-ottawa_bike_lines <- decode_pl(ottawa_bike_df$overview_polyline$points)
+duration_bike <- duration_bike %>% unnest(c(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14, var15, var16, var17, var18, var19, var20, var21, var22, var23, var24), names_sep = "unique", names_repair = "universal")
 
-ggmap(map) +
-  geom_point(data = ottawa_bike_lines, aes(x = lon, y = lat)) 
+duration_bike <- duration_bike %>%
+                    select(contains("value"))
+
+duration_bike <- duration_bike %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "duration_seconds",
+                                values_drop_na = FALSE
+                              )
+
+duration_bike$duration_hours <- duration_bike$duration_seconds / 3600
+
+ggplot(duration_bike) + 
+  geom_histogram(aes(duration_hours))
+
+summary(duration_bike$duration_hours)
 ```
 
-Add in distance and time to the data final data frame
+### Combining distance and duration for bike
 
-```{}
-distance_meters <- ottawa_bike[["routes"]][["legs"]][[1]][["distance"]][["value"]]
-duration_seconds <- ottawa_bike[["routes"]][["legs"]][[1]][["duration"]][["value"]]
+```{r}
+distance_duration_bike <- full_join(distance_bike, duration_bike)
 ```
 
-# Transit routes for Ottawa
+# Getting transit routes and points
 
-```{}
-ottawa_transit <- google_directions(origin = "Fallowfield, Ottawa, Canada",
-         destination = "Downtown, Ottawa, Canada",
-         arrival_time =  arrival_time,
-         mode = "transit",
-         alternatives = FALSE,
-         units = "metric")
-
-ottawa_transit[[1]]
-```
-
-### Create a data frame and map for route
-
-```{}
-ottawa_transit_df <- ottawa_transit$routes
-
-ottawa_transit_lines <- decode_pl(ottawa_transit_df$overview_polyline$points)
-
-map <- get_googlemap(origin)
-
-ggmap(origin) +
-  geom_point(data = ottawa_transit_lines, aes(x = lon, y = lat)) 
-```
-
-
-## NOT RUN
-
-```{}
-df_locations<-structure(list(origin = c("WARWICK", "EAST PROVIDENCE", "WARREN", 
-                                        "CENTERDALE", "CENTRAL FALLS", "DAVISVILLE", "NORTH PROVIDENCE", 
-                                        "EAST PROVIDENCE", "PROVIDENCE", "CHEPACHET"), destination = c("CENTERDALE", "EAST PROVIDENCE", "BRISTOL", "JOHNSTON", "CRANSTON", "WARWICK","NORTH PROVIDENCE", "EAST PROVIDENCE", "WARREN", "CHEPACHET")), class = "data.frame", row.names = c(NA, -10L))
-
-## loop over each pair of locations, and extract the polyline from the result
-lst_directions <- apply(df_locations, 1, function(x){
+```{r}
+transit_directions <- apply(points_sample, 1, function(x){
   res <- google_directions(
-    origin = x[['origin']]
-    , destination = x[['destination']]
+    origin = x[['lat_lon']], 
+    destination = x[['destination']],
+    arrival_time =  arrival_time,
+    mode = "transit",
+    alternatives = FALSE,
+    units = "metric"
   )
 })
-
-lst_directions[[2]][ , "geocoded_waypoints"] 
-
-lst_directions <- apply(df_locations, 1, function(x){
-  df_result <- data.frame(
-    origin = x[['origin']]
-    , destination = x[['destination']]
-    , route = res$routes$overview_polyline$points
-  )
-  return(df_result)
-})
-
-df_directions <- do.call(rbind, lst_directions)
-
-## plot the map
-google_map() %>%
-  add_polylines(data = df_directions, polyline = "route")
 ```
 
-         
+### Checking geocode and route status
+
+```{r}
+get_elem(transit_directions, "status", recursive = TRUE, DF.as.list = TRUE)
+```
+
+### Getting the distance data for transit
+
+```{r}
+distance_transit <- get_elem(transit_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_transit <- as_tibble(distance_transit)
+distance_transit <- distance_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+distance_transit <- distance_transit %>%
+                            filter(!row_number() %in% c(2))
+
+distance_transit <- distance_transit %>% unnest(c(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14, var15, var16, var17, var18, var19, var20, var21, var22, var23, var24), names_sep = "unique", names_repair = "universal")
+
+distance_transit <- distance_transit %>%
+                    select(contains("value"))
+
+distance_transit <- distance_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "distance_meters",
+                                values_drop_na = FALSE
+                              )
+
+distance_transit$distance_km <- distance_transit$distance_meters / 1000
+
+ggplot(distance_transit) + 
+  geom_histogram(aes(distance_km))
+
+summary(distance_transit$distance_km)
+```
+
+### Getting duration data for transit
+
+```{r}
+duration_transit <- get_elem(transit_directions, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_transit <- as_tibble(duration_transit)
+duration_transit <- duration_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+duration_transit <- duration_transit %>%
+                            filter(!row_number() %in% c(2))
+
+duration_transit <- duration_transit %>% unnest(c(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14, var15, var16, var17, var18, var19, var20, var21, var22, var23, var24), names_sep = "unique", names_repair = "universal")
+
+duration_transit <- duration_transit %>%
+                    select(contains("value"))
+
+duration_transit <- duration_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "duration_seconds",
+                                values_drop_na = FALSE
+                              )
+
+duration_transit$duration_hours <- duration_transit$duration_seconds / 3600
+
+ggplot(duration_transit) + 
+  geom_histogram(aes(duration_hours))
+
+summary(duration_transit$duration_hours)
+```
+
+### Combining distance and duration for transit
+
+```{r}
+distance_duration_transit <- full_join(distance_transit, duration_transit)
+```
+
+# Combining bike and transit data
+
+```{r}
+distance_duration_bike$mode <- "bike"
+distance_duration_transit$mode <- "transit"
+
+ottawa_fallowfield <- full_join(distance_duration_bike, distance_duration_transit)
+write_csv(ottawa_fallowfield, file = "ottawa_fallowfield.csv")
+```
+    
 ```{r, include = FALSE}
 clear_keys()
 ```
