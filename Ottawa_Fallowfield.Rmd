@@ -109,34 +109,6 @@ points_sample$destination <- destination
 points_sample$lat_lon <- paste(points_sample$lat, points_sample$lon)
 ```
 
-### Attempt to reverse geocode
-
-```{}
-### Reverse geocode 
-loczip <- lapply(seq(nrow(points_sample)), function(i){
-google_reverse_geocode(location = c(points_sample$lat[i],points_sample$lon[i]), 
-                       result_type = c("street_address"),
-                       location_type = "range_interpolated",
-                       simplify = TRUE)
-})
-
-### Convert to JSON and clean up
-loczip_json <- toJSON(loczip)
-parsed_locations <- fromJSON(loczip_json, simplifyVector = TRUE)
-
-glimpse(parsed_locations)
-
-### Get simple useable dataset
-test <- as.data.frame(parsed_locations$plus_code)
-test$origin <- test$compound_code
-test$destination <- destination
-test$compound_code <- NULL
-test$global_code <- NULL
-test <- as.data.frame(test)
-test <- apply(test,2,as.character)
-test <- as.data.frame(test)
-```
-
 ### Checking points and general mapping
 
 ```{r}
