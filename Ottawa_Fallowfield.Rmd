@@ -29,7 +29,7 @@ Cities and stations
 
 1. Ottawa
     * Fallowfield Station
-    * Millennium / Trim
+    * Blair Station
 2. Montreal 
     * Brossard Station
     * Rivière-des-Prairies Station
@@ -38,11 +38,11 @@ Cities and stations
     * Scarborough GO Station
 4. Vancouver
     * Surrey Central Station
-    * Edgemont Village Exchange
-5. Edmonton
+    * Richmond Station Park and Ride 
+5. Edmonton (Are these on the train?)
     * Heritage Valley Station
     * Nakî Transit Centre & Park and Ride
-6. Calgary
+6. Calgary 
     * North Pointe Transit Terminal
     * McKenzie Towne
 
@@ -94,7 +94,7 @@ plot(st_geometry(ottawa_check_buffer))
 plot(points_sample_sf, pch = 20, add= TRUE)
 ```
 
-Setup departure location and arrival time
+Setup departure location and arrival time (Change to Tuesday?)
 
 ```{r}
 arrival_time <- as.POSIXct("2024-06-01 08:30:00", tz = "America/Toronto")
