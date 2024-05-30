@@ -237,38 +237,6 @@ transit_directions <- apply(points_sample, 1, function(x){
 })
 ```
 
-### Checking geocode and route status for walking to transit (NOT RUN)
-
-```{}
-get_elem(transit_directions, "status", recursive = TRUE, DF.as.list = TRUE)
-
-distance_transit_walk <- get_elem(transit_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
-distance_transit_walk <- as_tibble(distance_transit_walk)
-
-distance_transit_walk <- distance_transit_walk %>%
-                            filter(!row_number() %in% c(1))
-
-distance_transit_walk <- distance_transit_walk %>% 
-                            rename_with(~paste0("var", seq_along(.)))
-
-distance_transit_walk <- distance_transit_walk %>% unnest(c(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14, var15, var16, var17, var18, var19, var20, var21, var22, var23, var24), names_sep = "unique", names_repair = "universal")
-
-distance_transit_walk <- distance_transit_walk %>%
-                            filter(!row_number() %in% c(2))
-
-distance_transit_walk <- distance_transit_walk %>% 
-                    pivot_longer(cols = starts_with("var"),
-                                names_to = "route",
-                                names_prefix = "wk",
-                                values_to = "distance_meters",
-                                values_drop_na = FALSE
-                              )
-
-distance_transit_walk$distance_meters <- as.character(distance_transit_walk$distance_meters)
-
-distance_transit_walk1 <- unnest(distance_transit_walk)
-```
-
 ### Getting the distance data for transit
 
 ```{r}
