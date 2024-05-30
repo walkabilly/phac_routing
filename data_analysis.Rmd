@@ -1,0 +1,53 @@
+---
+title: "Combining Data and Analysis"
+author: "Daniel Fuller"
+date: "2024-05-30"
+output:
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(reportRmd)
+library(ggridges)
+```
+
+## Read Data
+
+```{r, warning = FALSE, message = FALSE}
+barrhaven <- read_csv("ottawa_barrhaven_bike_transit_drive.csv")
+blair <- read_csv("ottawa_blaire_bike_transit_drive.csv")
+```
+
+## Joining Data
+
+```{r, warning = FALSE, message = FALSE}
+data <- bind_rows(barrhaven, blair)
+```
+
+## Summary statistics by mode
+
+```{r, warning = FALSE, message = FALSE}
+rm_covsum(data=data, maincov = 'mode',
+covs=c('distance_km','duration_hours'))
+```
+
+## Summary statistics by station
+
+```{r, warning = FALSE, message = FALSE}
+rm_covsum(data=data, maincov = 'station',
+covs=c('distance_km','duration_hours'))
+```
+
+## Data Viz by time
+
+```{r, warning = FALSE, message = FALSE}
+ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
+  geom_density_ridges() + 
+  stat_density_ridges(quantile_lines = TRUE, alpha = 0.75, quantiles = 2) +
+  facet_wrap(~ station)
+```
+
+
