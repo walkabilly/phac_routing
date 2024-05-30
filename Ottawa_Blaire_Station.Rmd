@@ -375,7 +375,7 @@ distance_duration_car <- full_join(distance_car, duration_car)
 
 ```{r}
 points_sample_bt <- points_sample %>% select(lat_lon)
-points_sample_bt$station <- "Fallowfield Station, Ottawa, Canada"     #### EDIT ME
+points_sample_bt$station <- origin     
 
 bike_transit_directions <- apply(points_sample_bt, 1, function(x){
   res <- google_directions(
@@ -497,9 +497,19 @@ distance_duration_transit__bike <- full_join(distance_bike_transit, duration_bik
 distance_duration_transit__bike$transit_to_location_distance_meters <- distance_transit_bike
 distance_duration_transit__bike$transit_to_location_distance_km <- distance_duration_transit__bike$transit_to_location_distance_meters / 1000
 
+distance_duration_transit__bike$distance_km <- distance_duration_transit__bike$bike_to_station_distance_km + distance_duration_transit__bike$transit_to_location_distance_km
+
+distance_duration_transit__bike$distance_meters <- distance_duration_transit__bike$bike_to_station_distance_meters + distance_duration_transit__bike$transit_to_location_distance_meters
+
 #### Duration
-distance_duration_transit__bike$transit_to_location_distance_seconds <- duration_transit_bike
-distance_duration_transit__bike$transit_to_location_distance_hours <- distance_duration_transit__bike$transit_to_location_distance_seconds / 3600
+distance_duration_transit__bike$transit_to_location_duration_seconds <- duration_transit_bike
+distance_duration_transit__bike$transit_to_location_duration_hours <- distance_duration_transit__bike$transit_to_location_duration_seconds / 3600
+
+distance_duration_transit__bike$duration_hours <- distance_duration_transit__bike$bike_to_station_duration_hours + distance_duration_transit__bike$bike_to_station_duration_hours
+
+distance_duration_transit__bike$duration_seconds <- distance_duration_transit__bike$bike_to_station_duration_seconds + distance_duration_transit__bike$bike_to_station_duration_seconds
+
+distance_duration_transit_bike <- select(distance_duration_transit__bike, route, distance_meters, duration_hours, distance_km, duration_hours, duration_seconds)
 ```
 
 # Combining bike, transit, and car data
@@ -508,9 +518,13 @@ distance_duration_transit__bike$transit_to_location_distance_hours <- distance_d
 distance_duration_bike$mode <- "bike"
 distance_duration_transit$mode <- "transit"
 distance_duration_car$mode <- "car"
+distance_duration_transit_bike$mode <- "bike_transit"
+
 
 full_data1 <- full_join(distance_duration_bike, distance_duration_transit)
-full_data <- full_join(full_data1, distance_duration_car)
+full_data2 <- full_join(full_data1, distance_duration_car)
+full_data <- full_join(full_data2, distance_duration_transit_bike)
+
 full_data$station <- origin
 full_data$destination <- destination
 ```
