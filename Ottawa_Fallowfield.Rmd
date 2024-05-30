@@ -21,8 +21,6 @@ googleway::set_key(key = map_key)
 ggmap::register_google(map_key)
 ```
 
-https://stackoverflow.com/questions/59775761/drawing-driving-routes-in-r
-
 # Setup data frame to be filled in
 
 Cities and stations
@@ -47,19 +45,30 @@ Cities and stations
     * McKenzie Towne
 
 # Ottawa
+
 ## Fallowfield Station
 
 ### Draw buffer and select points
 
 ```{r}
-destination <- "Downtown, Ottawa, Canada"
+destination <- "Downtown, Ottawa, Canada"        #### EDIT ME
 ```
 
 ### Set origin point
 
 ```{r}
-origin <- "Fallowfield Station, Ottawa, Canada"
+origin <- "Fallowfield Station, Ottawa, Canada"    #### EDIT ME
+```
 
+#### Setup departure location and arrival time
+
+June 22, 2024
+
+```{r}
+arrival_time <- as.POSIXct("2024-06-11 08:30:00", tz = "America/Toronto")       #### EDIT ME
+```
+
+```{r}
 stations <- geocode(location = origin, output = "more", source = "google")
 
 stations_sf <- stations %>%
@@ -94,25 +103,13 @@ plot(st_geometry(ottawa_check_buffer))
 plot(points_sample_sf, pch = 20, add= TRUE)
 ```
 
-Setup departure location and arrival time (Change to Tuesday?)
-
-```{r}
-arrival_time <- as.POSIXct("2024-06-01 08:30:00", tz = "America/Toronto")
-```
-
-## Reverse 
-
-## Bicycle routes for Ottawa
-
-Need to reverse geocode to get the randomly selected to origins to work
-
 ```{r}
 points_sample$destination <- destination
 points_sample$origin <- origin
 points_sample$lat_lon <- paste(points_sample$lat, points_sample$lon)
 ```
 
-### Checking points and general mapping
+#### Checking points and general mapping
 
 ```{r}
 lst_directions <- apply(points_sample, 1, function(x){
@@ -133,6 +130,7 @@ df_directions <- do.call(rbind, lst_directions)
 google_map() %>%
   add_polylines(data = df_directions, polyline = "route") 
 ```
+
 
 # BIKE: Getting cycling routes and points
 
@@ -339,8 +337,6 @@ summary(duration_transit$duration_hours)
 distance_duration_transit <- full_join(distance_transit, duration_transit)
 ```
 
-
-
 # DRIVING: Getting driving routes and points
 
 ```{r}
@@ -430,7 +426,136 @@ summary(duration_car$duration_hours)
 distance_duration_car <- full_join(distance_car, duration_car)
 ```
 
+# BIKE+TRANSIT: Getting bike+transit routes and points
 
+```{r}
+points_sample_bt <- points_sample %>% select(lat_lon)
+points_sample_bt$station <- "Fallowfield Station, Ottawa, Canada"     #### EDIT ME
+
+bike_transit_directions <- apply(points_sample_bt, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['station']],
+    arrival_time =  arrival_time,
+    mode = "bicycling",
+    alternatives = FALSE,
+    units = "metric"
+  )
+})
+```
+
+### Checking geocode and route status
+
+```{r}
+get_elem(bike_transit_directions, "status", recursive = TRUE, DF.as.list = TRUE)
+```
+
+### Getting the distance data for bike+transit (bike portion)
+
+```{r}
+distance_bike_transit <- get_elem(bike_transit_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_bike_transit <- as_tibble(distance_bike_transit)
+distance_bike_transit <- distance_bike_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+distance_bike_transit <- distance_bike_transit %>%
+                            filter(!row_number() %in% c(2))
+
+distance_bike_transit <- distance_bike_transit %>% unnest(c(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14, var15, var16, var17, var18, var19, var20, var21, var22, var23, var24), names_sep = "unique", names_repair = "universal")
+
+distance_bike_transit <- distance_bike_transit %>%
+                      select(contains("value"))
+
+distance_bike_transit <- distance_bike_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "bike_to_station_distance_meters",
+                                values_drop_na = FALSE
+                              )
+
+distance_bike_transit$bike_to_station_distance_km <- distance_bike_transit$bike_to_station_distance_meters / 1000
+
+ggplot(distance_bike_transit) + 
+  geom_histogram(aes(bike_to_station_distance_km))
+
+summary(distance_bike_transit$bike_to_station_distance_km)
+```
+
+### Getting duration data for bike+transit (bike portion)
+
+```{r}
+duration_bike_transit <- get_elem(bike_transit_directions, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_bike_transit <- as_tibble(duration_bike_transit)
+duration_bike_transit <- duration_bike_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+duration_bike_transit <- duration_bike_transit %>%
+                            filter(!row_number() %in% c(2))
+
+duration_bike_transit <- duration_bike_transit %>% unnest(c(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14, var15, var16, var17, var18, var19, var20, var21, var22, var23, var24), names_sep = "unique", names_repair = "universal")
+
+duration_bike_transit <- duration_bike_transit %>%
+                    select(contains("value"))
+
+duration_bike_transit <- duration_bike_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "bike_to_station_duration_seconds",
+                                values_drop_na = FALSE
+                              )
+
+duration_bike_transit$bike_to_station_duration_hours <- duration_bike_transit$bike_to_station_duration_seconds / 3600
+
+ggplot(duration_bike_transit) + 
+  geom_histogram(aes(bike_to_station_duration_hours))
+
+summary(duration_bike_transit$bike_to_station_duration_hours)
+```
+
+## Bike+Transit (Transit portion)
+
+```{r}
+transit_bike <- google_directions(origin = origin,  
+                          destination = destination,             
+                          arrival_time =  arrival_time,
+                          mode = "bicycling",
+                          alternatives = FALSE,
+                          units = "metric"
+                          )
+```
+
+```{r}
+distance_transit_bike <- get_elem(transit_bike, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_transit_bike <- as_tibble(distance_transit_bike)
+distance_transit_bike <- distance_transit_bike %>% slice(1)
+distance_transit_bike <- distance_transit_bike$distance
+distance_transit_bike <- distance_transit_bike %>% select(contains("value"))
+distance_transit_bike <- as.vector(distance_transit_bike$value)
+```
+
+```{r}
+duration_transit_bike <- get_elem(transit_bike, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_transit_bike <- as_tibble(duration_transit_bike)
+duration_transit_bike <- duration_transit_bike %>% slice(1)
+duration_transit_bike <- duration_transit_bike$duration
+duration_transit_bike <- duration_transit_bike %>% select(contains("value"))
+duration_transit_bike <- as.vector(duration_transit_bike$value)
+```
+
+
+### Combining distance and duration for transit
+
+```{r}
+distance_duration_transit__bike <- full_join(distance_bike_transit, duration_bike_transit)
+
+#### Distance
+distance_duration_transit__bike$transit_to_location_distance_meters <- distance_transit_bike
+distance_duration_transit__bike$transit_to_location_distance_km <- distance_duration_transit__bike$transit_to_location_distance_meters / 1000
+
+#### Duration
+distance_duration_transit__bike$transit_to_location_distance_seconds <- duration_transit_bike
+distance_duration_transit__bike$transit_to_location_distance_hours <- distance_duration_transit__bike$transit_to_location_distance_seconds / 3600
+```
 
 # Combining bike, transit, and car data
 
@@ -443,11 +568,15 @@ ottawa_fallowfield1 <- full_join(distance_duration_bike, distance_duration_trans
 ottawa_fallowfield <- full_join(ottawa_fallowfield1, distance_duration_car)
 ottawa_fallowfield$station <- origin
 ottawa_fallowfield$destination <- destination
-
-
-write_csv(ottawa_fallowfield, file = "ottawa_fallowfield.csv")
 ```
-    
+
+# Writing CSV Files
+
+```{r}
+write_csv(distance_duration_transit__bike, file = "ottawa_fallowfield_bike_plus_transit.csv")    #### EDIT ME
+write_csv(ottawa_fallowfield, file = "ottawa_fallowfield_bike_transit_drive.csv")  #### EDIT ME
+```
+
 ```{r, include = FALSE}
 clear_keys()
 ```
