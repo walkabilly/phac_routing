@@ -24,8 +24,8 @@ ggmap::register_google(map_key)
 Cities and stations
 
 1. Ottawa
-    * Fallowfield Station
-    * Millennium / Trim
+    * Barrhaven Centre
+    * Blair Station
 2. Montreal 
     * Brossard Station
     * Rivière-des-Prairies Station

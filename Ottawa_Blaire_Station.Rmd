@@ -21,11 +21,9 @@ googleway::set_key(key = map_key)
 ggmap::register_google(map_key)
 ```
 
-# Setup data frame to be filled in
-
 # Ottawa
 
-## Fallowfield Station
+## Blaire Station
 
 ### Draw buffer and select points
 
@@ -36,7 +34,7 @@ destination <- "Wellington Building, Ottawa, Canada"        #### EDIT ME
 ### Set origin point
 
 ```{r}
-origin <- "Fallowfield Station, Ottawa, Canada"    #### EDIT ME
+origin <- "Blair Station, Ottawa, Canada"    #### EDIT ME
 ```
 
 #### Setup departure location and arrival time
@@ -511,17 +509,17 @@ distance_duration_bike$mode <- "bike"
 distance_duration_transit$mode <- "transit"
 distance_duration_car$mode <- "car"
 
-ottawa_fallowfield1 <- full_join(distance_duration_bike, distance_duration_transit)
-ottawa_fallowfield <- full_join(ottawa_fallowfield1, distance_duration_car)
-ottawa_fallowfield$station <- origin
-ottawa_fallowfield$destination <- destination
+full_data1 <- full_join(distance_duration_bike, distance_duration_transit)
+full_data <- full_join(full_data1, distance_duration_car)
+full_data$station <- origin
+full_data$destination <- destination
 ```
 
 # Writing CSV Files
 
 ```{r}
-write_csv(distance_duration_transit__bike, file = "ottawa_fallowfield_bike_plus_transit.csv")    #### EDIT ME
-write_csv(ottawa_fallowfield, file = "ottawa_fallowfield_bike_transit_drive.csv")  #### EDIT ME
+write_csv(distance_duration_transit__bike, file = "ottawa_blaire_bike_plus_transit.csv")    #### EDIT ME
+write_csv(full_data, file = "ottawa_blaire_bike_transit_drive.csv")  #### EDIT ME
 ```
 
 ```{r, include = FALSE}
