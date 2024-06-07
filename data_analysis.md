@@ -30,6 +30,8 @@ naki <- read_csv("Edmonton/edmonton_naki_bike_transit_drive.csv")
 
 ```r
 data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, heritage, naki)
+
+write_csv(data, file = "mode_city_data.csv")
 ```
 
 ## Summary statistics by mode
