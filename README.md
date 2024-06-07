@@ -44,11 +44,11 @@ Edmonton  | Heritage Valley Station | [Click here](https://github.com/walkabilly
 Edmonton  | Nakî Transit Centre & Park and Ride | [Click here](https://github.com/walkabilly/phac_routing/blob/main/Edmonton/Edmonton_Naki_Station.md) | [Download](https://github.com/walkabilly/phac_routing/blob/main/Edmonton/Edmonton_Naki_bike_transit_drive.csv)
 Calgary  | North Pointe Transit Terminal | [Click here](https://github.com/walkabilly/phac_routing/blob/main/Calgary/Calgary_NorthPoint_Station.md) | [Download](https://github.com/walkabilly/phac_routing/blob/main/Calgary/calgary_northpoint_bike_transit_drive.csv)
 Calgary  | McKenzie Towne | [Click here](https://github.com/walkabilly/phac_routing/blob/main/Calgary/Calgary_McKenzie_Station.md) | [Download](https://github.com/walkabilly/phac_routing/blob/main/Calgary/calgary_mckenzie_bike_transit_drive.csv)
+Vancouver  | Surrey Central Station | [Coming Soon]() | [Coming Soon]()
+Vancouver  | Bridgeport Station | [Coming Soon]() | [Coming Soon]()
 
-4. Vancouver
-    * Surrey Central Station
-    * Bridgeport Station
+## Data Analysis
 
-
+[Click to view Rendered Markdown](https://github.com/walkabilly/phac_routing/blob/main/data_analysis.md)
 
 
