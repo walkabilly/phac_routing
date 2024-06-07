@@ -1,0 +1,554 @@
+---
+title: "Google Routing"
+output:
+  html_document:
+    keep_md: yes
+date: "2023-12-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(googleway)
+library(tidyverse)
+library(ggmap)
+library(sf)
+library(sfext)
+library(googlePolylines)
+library(mapview)
+library(jsonlite)
+library(collapse)
+googleway::set_key(key = map_key)
+ggmap::register_google(map_key)
+```
+
+# Edmonton
+
+## Heritage Valley Station
+
+### Draw buffer and select points
+
+```{r}
+destination <- "Edmonton Public Library - Stanley A. Milner Library (Downtown), Edmonton, Canada"        #### EDIT ME
+```
+
+### Set origin point
+
+```{r}
+origin <- "Heritage Valley Station, Edmonton, Canada"    #### EDIT ME
+```
+
+#### Setup departure location and arrival time
+
+```{r}
+arrival_time <- as.POSIXct("2024-06-11 08:30:00", tz = "America/Calgary")       #### EDIT ME
+```
+
+#### List of variables for geocoding
+
+```{r}
+var_list <- c("var1", "var2", "var3", "var4", "var5", "var6", "var7", "var8", "var9", "var10", "var11", "var12", "var13", "var14", "var15", "var16", "var17", "var18", "var19", "var20", "var21", "var22", "var23", "var24")
+```
+
+#### Seed
+
+```{r}
+seed <- c(102)
+```
+
+```{r}
+stations <- geocode(location = origin, output = "more", source = "google")
+
+stations_sf <- stations %>%
+                st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+stations_buffer = st_buffer(stations_sf, 5000)
+
+stations_buffer <- as_sf(stations_buffer)
+```
+
+#### Interactive map view of buffers
+
+```{r}
+mapview(stations_buffer)
+```
+
+#### Generate points within buffer
+
+```{r}
+set.seed(seed)
+points_sample_sf <- st_sample(stations_buffer, size = c(25,25), type = "random")
+points_sample_sf <- st_as_sf(points_sample_sf)
+points_sample <- sf_to_df(points_sample_sf)
+```
+
+#### Check to see if they worked
+
+```{r}
+check_buffer <- stations_buffer %>% slice(1:2)
+
+plot(st_geometry(check_buffer))
+plot(points_sample_sf, pch = 20, add= TRUE)
+```
+
+```{r}
+points_sample$destination <- destination
+points_sample$origin <- origin
+points_sample$lat_lon <- paste(points_sample$lat, points_sample$lon)
+```
+
+#### Checking points and general mapping
+
+```{r}
+lst_directions <- apply(points_sample, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']]    
+  )
+df_result <- data.frame(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']], 
+    route = res$routes$overview_polyline$points 
+)
+return(df_result)
+})
+
+df_directions <- do.call(rbind, lst_directions)
+
+google_map() %>%
+  add_polylines(data = df_directions, polyline = "route") 
+```
+
+
+# BIKE: Getting cycling routes and points
+
+```{r}
+bike_directions <- apply(points_sample, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']],
+    arrival_time =  arrival_time,
+    mode = "bicycling",
+    alternatives = FALSE,
+    units = "metric"
+  )
+})
+```
+
+### Checking geocode and route status
+
+```{r}
+get_elem(bike_directions, "status", recursive = TRUE, DF.as.list = TRUE)
+```
+
+### Getting the distance data from bike
+
+```{r}
+distance_bike <- get_elem(bike_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_bike <- as_tibble(distance_bike)
+distance_bike <- distance_bike %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+distance_bike <- distance_bike %>%
+                            filter(!row_number() %in% c(2))
+
+distance_bike <- distance_bike %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+distance_bike <- distance_bike %>%
+                    select(contains("value"))
+
+distance_bike <- distance_bike %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "distance_meters",
+                                values_drop_na = FALSE
+                              )
+
+distance_bike$distance_km <- distance_bike$distance_meters / 1000
+
+ggplot(distance_bike) + 
+  geom_histogram(aes(distance_km))
+
+summary(distance_bike$distance_km)
+```
+
+### Getting duration data for bike
+
+```{r}
+duration_bike <- get_elem(bike_directions, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_bike <- as_tibble(duration_bike)
+duration_bike <- duration_bike %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+duration_bike <- duration_bike %>%
+                            filter(!row_number() %in% c(2))
+
+duration_bike <- duration_bike %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+duration_bike <- duration_bike %>%
+                    select(contains("value"))
+
+duration_bike <- duration_bike %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "duration_seconds",
+                                values_drop_na = FALSE
+                              )
+
+duration_bike$duration_hours <- duration_bike$duration_seconds / 3600
+
+ggplot(duration_bike) + 
+  geom_histogram(aes(duration_hours))
+
+summary(duration_bike$duration_hours)
+```
+
+### Combining distance and duration for bike
+
+```{r}
+distance_duration_bike <- full_join(distance_bike, duration_bike)
+```
+
+
+# TRANSIT: Getting transit routes and points
+
+```{r}
+transit_directions <- apply(points_sample, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']],
+    arrival_time =  arrival_time,
+    mode = "transit",
+    alternatives = FALSE,
+    units = "metric"
+  )
+})
+
+get_elem(transit_directions, "status", recursive = TRUE, DF.as.list = TRUE)
+```
+
+### Getting the distance data for transit
+
+```{r}
+distance_transit <- get_elem(transit_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_transit <- as_tibble(distance_transit)
+distance_transit <- distance_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+distance_transit <- distance_transit %>%
+                            filter(!row_number() %in% c(2))
+
+distance_transit <- distance_transit %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+distance_transit <- distance_transit %>%
+                      select(contains("value"))
+
+distance_transit <- distance_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "distance_meters",
+                                values_drop_na = FALSE
+                              )
+
+distance_transit$distance_km <- distance_transit$distance_meters / 1000
+
+ggplot(distance_transit) + 
+  geom_histogram(aes(distance_km))
+
+summary(distance_transit$distance_km)
+```
+
+### Getting duration data for transit
+
+```{r}
+duration_transit <- get_elem(transit_directions, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_transit <- as_tibble(duration_transit)
+duration_transit <- duration_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+duration_transit <- duration_transit %>%
+                            filter(!row_number() %in% c(2))
+
+duration_transit <- duration_transit %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+duration_transit <- duration_transit %>%
+                    select(contains("value"))
+
+duration_transit <- duration_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "duration_seconds",
+                                values_drop_na = FALSE
+                              )
+
+duration_transit$duration_hours <- duration_transit$duration_seconds / 3600
+
+ggplot(duration_transit) + 
+  geom_histogram(aes(duration_hours))
+
+summary(duration_transit$duration_hours)
+```
+
+### Combining distance and duration for transit
+
+```{r}
+distance_duration_transit <- full_join(distance_transit, duration_transit)
+```
+
+# DRIVING: Getting driving routes and points
+
+```{r}
+car_directions <- apply(points_sample, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['destination']],
+    arrival_time =  arrival_time,
+    mode = "driving",
+    alternatives = FALSE,
+    units = "metric"
+  )
+})
+```
+
+### Checking geocode and route status
+
+```{r}
+get_elem(car_directions, "status", recursive = TRUE, DF.as.list = TRUE)
+```
+
+### Getting the distance data from car
+
+```{r}
+distance_car <- get_elem(car_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_car <- as_tibble(distance_car)
+distance_car <- distance_car %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+distance_car <- distance_car %>%
+                            filter(!row_number() %in% c(2))
+
+distance_car <- distance_car %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+distance_car <- distance_car %>%
+                    select(contains("value"))
+
+distance_car <- distance_car %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "distance_meters",
+                                values_drop_na = FALSE
+                              )
+
+distance_car$distance_km <- distance_car$distance_meters / 1000
+
+ggplot(distance_car) + 
+  geom_histogram(aes(distance_km))
+
+summary(distance_car$distance_km)
+```
+
+### Getting duration data for car
+
+```{r}
+duration_car <- get_elem(car_directions, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_car <- as_tibble(duration_car)
+duration_car <- duration_car %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+duration_car <- duration_car %>%
+                            filter(!row_number() %in% c(2))
+
+duration_car <- duration_car %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+duration_car <- duration_car %>%
+                    select(contains("value"))
+
+duration_car <- duration_car %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "duration_seconds",
+                                values_drop_na = FALSE
+                              )
+
+duration_car$duration_hours <- duration_car$duration_seconds / 3600
+
+ggplot(duration_car) + 
+  geom_histogram(aes(duration_hours))
+
+summary(duration_car$duration_hours)
+```
+
+### Combining distance and duration for car
+
+```{r}
+distance_duration_car <- full_join(distance_car, duration_car)
+```
+
+# BIKE+TRANSIT: Getting bike+transit routes and points
+
+```{r}
+points_sample_bt <- points_sample %>% select(lat_lon)
+points_sample_bt$station <- origin     
+
+bike_transit_directions <- apply(points_sample_bt, 1, function(x){
+  res <- google_directions(
+    origin = x[['lat_lon']], 
+    destination = x[['station']],
+    arrival_time =  arrival_time,
+    mode = "bicycling",
+    alternatives = FALSE,
+    units = "metric"
+  )
+})
+```
+
+### Checking geocode and route status
+
+```{r}
+get_elem(bike_transit_directions, "status", recursive = TRUE, DF.as.list = TRUE)
+```
+
+### Getting the distance data for bike+transit (bike portion)
+
+```{r}
+distance_bike_transit <- get_elem(bike_transit_directions, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_bike_transit <- as_tibble(distance_bike_transit)
+distance_bike_transit <- distance_bike_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+distance_bike_transit <- distance_bike_transit %>%
+                            filter(!row_number() %in% c(2))
+
+distance_bike_transit <- distance_bike_transit %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+distance_bike_transit <- distance_bike_transit %>%
+                      select(contains("value"))
+
+distance_bike_transit <- distance_bike_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "bike_to_station_distance_meters",
+                                values_drop_na = FALSE
+                              )
+
+distance_bike_transit$bike_to_station_distance_km <- distance_bike_transit$bike_to_station_distance_meters / 1000
+
+ggplot(distance_bike_transit) + 
+  geom_histogram(aes(bike_to_station_distance_km))
+
+summary(distance_bike_transit$bike_to_station_distance_km)
+```
+
+### Getting duration data for bike+transit (bike portion)
+
+```{r}
+duration_bike_transit <- get_elem(bike_transit_directions, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_bike_transit <- as_tibble(duration_bike_transit)
+duration_bike_transit <- duration_bike_transit %>% 
+                            rename_with(~paste0("var", seq_along(.)))
+duration_bike_transit <- duration_bike_transit %>%
+                            filter(!row_number() %in% c(2))
+
+duration_bike_transit <- duration_bike_transit %>% unnest(all_of(var_list), names_sep = "unique", names_repair = "universal")
+
+duration_bike_transit <- duration_bike_transit %>%
+                    select(contains("value"))
+
+duration_bike_transit <- duration_bike_transit %>% 
+                    pivot_longer(cols = starts_with("var"),
+                                names_to = "route",
+                                names_prefix = "wk",
+                                values_to = "bike_to_station_duration_seconds",
+                                values_drop_na = FALSE
+                              )
+
+duration_bike_transit$bike_to_station_duration_hours <- duration_bike_transit$bike_to_station_duration_seconds / 3600
+
+ggplot(duration_bike_transit) + 
+  geom_histogram(aes(bike_to_station_duration_hours))
+
+summary(duration_bike_transit$bike_to_station_duration_hours)
+```
+
+## Bike+Transit (Transit portion)
+
+```{r}
+transit_bike <- google_directions(origin = origin,  
+                          destination = destination,             
+                          arrival_time =  arrival_time,
+                          mode = "bicycling",
+                          alternatives = FALSE,
+                          units = "metric"
+                          )
+```
+
+```{r}
+distance_transit_bike <- get_elem(transit_bike, "distance", recursive = TRUE, DF.as.list = TRUE)
+distance_transit_bike <- as_tibble(distance_transit_bike)
+distance_transit_bike <- distance_transit_bike %>% slice(1)
+distance_transit_bike <- distance_transit_bike$distance
+distance_transit_bike <- distance_transit_bike %>% select(contains("value"))
+distance_transit_bike <- as.vector(distance_transit_bike$value)
+```
+
+```{r}
+duration_transit_bike <- get_elem(transit_bike, "duration", recursive = TRUE, DF.as.list = TRUE)
+duration_transit_bike <- as_tibble(duration_transit_bike)
+duration_transit_bike <- duration_transit_bike %>% slice(1)
+duration_transit_bike <- duration_transit_bike$duration
+duration_transit_bike <- duration_transit_bike %>% select(contains("value"))
+duration_transit_bike <- as.vector(duration_transit_bike$value)
+```
+
+
+### Combining distance and duration for transit
+
+```{r}
+distance_duration_transit__bike <- full_join(distance_bike_transit, duration_bike_transit)
+
+#### Distance
+distance_duration_transit__bike$transit_to_location_distance_meters <- distance_transit_bike
+distance_duration_transit__bike$transit_to_location_distance_km <- distance_duration_transit__bike$transit_to_location_distance_meters / 1000
+
+distance_duration_transit__bike$distance_km <- distance_duration_transit__bike$bike_to_station_distance_km + distance_duration_transit__bike$transit_to_location_distance_km
+
+distance_duration_transit__bike$distance_meters <- distance_duration_transit__bike$bike_to_station_distance_meters + distance_duration_transit__bike$transit_to_location_distance_meters
+
+#### Duration
+distance_duration_transit__bike$transit_to_location_duration_seconds <- duration_transit_bike
+distance_duration_transit__bike$transit_to_location_duration_hours <- distance_duration_transit__bike$transit_to_location_duration_seconds / 3600
+
+distance_duration_transit__bike$duration_hours <- distance_duration_transit__bike$bike_to_station_duration_hours + distance_duration_transit__bike$bike_to_station_duration_hours
+
+distance_duration_transit__bike$duration_seconds <- distance_duration_transit__bike$bike_to_station_duration_seconds + distance_duration_transit__bike$bike_to_station_duration_seconds
+
+distance_duration_transit_bike <- select(distance_duration_transit__bike, route, distance_meters, duration_hours, distance_km, duration_hours, duration_seconds)
+```
+
+# Combining bike, transit, and car data
+
+```{r}
+distance_duration_bike$mode <- "bike"
+distance_duration_transit$mode <- "transit"
+distance_duration_car$mode <- "car"
+distance_duration_transit_bike$mode <- "bike_transit"
+
+
+full_data1 <- full_join(distance_duration_bike, distance_duration_transit)
+full_data2 <- full_join(full_data1, distance_duration_car)
+full_data <- full_join(full_data2, distance_duration_transit_bike)
+
+full_data$station <- origin
+full_data$destination <- destination
+```
+
+# Writing CSV Files
+
+```{r}
+write_csv(distance_duration_transit__bike, file = "edmonton_heritage_bike_plus_transit.csv")    #### EDIT ME
+write_csv(full_data, file = "edmonton_heritage_bike_transit_drive.csv")  #### EDIT ME
+```
+
+```{r, include = FALSE}
+clear_keys()
+```
+
