@@ -3,8 +3,9 @@ title: "Combining Data and Analysis"
 author: "Daniel Fuller"
 date: "2024-05-30"
 output:
+  word_document: default
   html_document:
-    keep_md: yes
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE}
