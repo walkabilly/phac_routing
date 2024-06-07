@@ -17,14 +17,22 @@ library(ggridges)
 ## Read Data
 
 ```{r, warning = FALSE, message = FALSE}
-barrhaven <- read_csv("ottawa_barrhaven_bike_transit_drive.csv")
-blair <- read_csv("ottawa_blaire_bike_transit_drive.csv")
+barrhaven <- read_csv("Ottawa/ottawa_barrhaven_bike_transit_drive.csv")
+blair <- read_csv("Ottawa/ottawa_blaire_bike_transit_drive.csv")
+scar <- read_csv("Toronto/toronto_scarborough_bike_transit_drive.csv")
+vaughn <- read_csv("Toronto/toronto_vaughn_bike_transit_drive.csv")
+bross <- read_csv("Montreal/montreal_brossard_bike_transit_drive.csv")
+rivier <- read_csv("Montreal/montreal_riviereprairie_bike_transit_drive.csv")
+mckenzie <- read_csv("Calgary/calgary_mckenzie_bike_transit_drive.csv")
+np <- read_csv("Calgary/calgary_northpoint_bike_transit_drive.csv")
+heritage <- read_csv("Edmonton/edmonton_heritage_bike_transit_drive.csv")
+naki <- read_csv("Edmonton/edmonton_naki_bike_transit_drive.csv")
 ```
 
 ## Joining Data
 
 ```{r, warning = FALSE, message = FALSE}
-data <- bind_rows(barrhaven, blair)
+data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, heritage, naki)
 ```
 
 ## Summary statistics by mode
