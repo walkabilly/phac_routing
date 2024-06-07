@@ -4,7 +4,9 @@ author: "Daniel Fuller"
 date: "2024-05-30"
 output:
   html_document:
-    keep_md: yes
+    keep_md: true
+  pdf_document: default
+  word_document: default
 ---
 
 
@@ -240,10 +242,11 @@ covs=c('distance_km','duration_hours'))
 
 
 ```r
-ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
+viz <- ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
   geom_density_ridges() + 
   stat_density_ridges(quantile_lines = TRUE, alpha = 0.75, quantiles = 2) +
   facet_wrap(~ station)
+plot(viz)
 ```
 
 ![](data_analysis_files/figure-html/unnamed-chunk-5-1.png)<!-- -->

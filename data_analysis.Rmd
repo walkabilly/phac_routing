@@ -3,9 +3,10 @@ title: "Combining Data and Analysis"
 author: "Daniel Fuller"
 date: "2024-05-30"
 output:
-  word_document: default
   html_document:
     keep_md: true
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE}
@@ -55,10 +56,11 @@ covs=c('distance_km','duration_hours'))
 ## Data Viz by time
 
 ```{r, warning = FALSE, message = FALSE}
-ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
+viz <- ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
   geom_density_ridges() + 
   stat_density_ridges(quantile_lines = TRUE, alpha = 0.75, quantiles = 2) +
   facet_wrap(~ station)
+plot(viz)
 ```
 
 
