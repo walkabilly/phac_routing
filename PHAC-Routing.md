@@ -23,7 +23,7 @@ Cities and stations
     * Scarborough GO Station
 4. Vancouver
     * Surrey Central Station
-    * Edgemont Village Exchange
+    * Bridgeport Station
 5. Edmonton
     * Heritage Valley Station
     * Nakî Transit Centre & Park and Ride
