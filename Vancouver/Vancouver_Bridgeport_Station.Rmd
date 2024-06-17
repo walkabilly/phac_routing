@@ -539,8 +539,8 @@ full_data$destination <- destination
 # Writing CSV Files
 
 ```{r}
-write_csv(distance_duration_transit__bike, file = "vancouver_surrey_bike_plus_transit.csv")    #### EDIT ME
-write_csv(full_data, file = "vancouver_surrey_bike_transit_drive.csv")  #### EDIT ME
+write_csv(distance_duration_transit__bike, file = "vancouver_bridgeport_bike_plus_transit.csv")    #### EDIT ME
+write_csv(full_data, file = "vancouver_bridgeport_bike_transit_drive.csv")  #### EDIT ME
 ```
 
 ```{r, include = FALSE}
