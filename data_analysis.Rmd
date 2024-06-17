@@ -29,12 +29,14 @@ mckenzie <- read_csv("Calgary/calgary_mckenzie_bike_transit_drive.csv")
 np <- read_csv("Calgary/calgary_northpoint_bike_transit_drive.csv")
 heritage <- read_csv("Edmonton/edmonton_heritage_bike_transit_drive.csv")
 naki <- read_csv("Edmonton/edmonton_naki_bike_transit_drive.csv")
+surrey <- read_csv("Vancouver/vancouver_surrey_bike_transit_drive.csv")
+bridge <- read_csv("Vancouver/vancouver_bridgeport_bike_transit_drive.csv")
 ```
 
 ## Joining Data
 
 ```{r, warning = FALSE, message = FALSE}
-data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, heritage, naki)
+data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, heritage, naki, surrey, bridge)
 
 write_csv(data, file = "mode_city_data.csv")
 ```
