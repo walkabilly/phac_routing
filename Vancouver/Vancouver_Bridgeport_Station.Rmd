@@ -23,7 +23,7 @@ ggmap::register_google(map_key)
 
 # Vancouver
 
-## Surrey Central Station
+## Bridgeport Station
 
 ### Draw buffer and select points
 
@@ -34,7 +34,7 @@ destination <- "Vancouver Art Gallery, Vancouver, Canada"        #### EDIT ME
 ### Set origin point
 
 ```{r}
-origin <- "Surrey Central Station, Surrey, Canada"    #### EDIT ME
+origin <- "Bridgeport Station, Vancouver, Canada"    #### EDIT ME
 ```
 
 #### Setup departure location and arrival time
@@ -70,7 +70,7 @@ mapview(stations_buffer)
 #### Generate points within buffer
 
 ```{r}
-set.seed(106)
+set.seed(109)
 points_sample_sf <- st_sample(stations_buffer, size = c(25,25), type = "random")
 points_sample_sf <- st_as_sf(points_sample_sf)
 points_sample <- sf_to_df(points_sample_sf)
