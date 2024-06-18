@@ -28,7 +28,7 @@ ggmap::register_google(map_key)
 ### Draw buffer and select points
 
 ```{r}
-destination <- "Wellington Building, Ottawa, Canada"        #### EDIT ME
+destination <- "National Gallery of Canada, Ottawa, Canada"        #### EDIT ME
 ```
 
 ### Set origin point
@@ -42,7 +42,7 @@ origin <- "Blair Station, Ottawa, Canada"    #### EDIT ME
 June 22, 2024
 
 ```{r}
-arrival_time <- as.POSIXct("2024-06-11 08:30:00", tz = "America/Toronto")       #### EDIT ME
+arrival_time <- as.POSIXct("2024-06-25 08:30:00", tz = "America/Toronto")       #### EDIT ME
 ```
 
 ```{r}
