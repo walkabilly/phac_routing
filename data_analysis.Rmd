@@ -3,10 +3,10 @@ title: "Combining Mass Rapid Transit and Active Transportation for Physical Acti
 author: "Daniel Fuller"
 date: "2024-05-30"
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     keep_md: true
-  pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE}
@@ -35,10 +35,10 @@ To compare travel distance and physical activity amounts attained from point-to-
 This used the [Google Route API](https://mapsplatform.google.com/maps-products/routes/) implemented in the [googleway R package](https://www.rdocumentation.org/packages/googleway/versions/2.7.8) to to compare travel time, travel distance, and estimated physical activity contribution of trips from 25 randomly selected street addresses within a 5km buffer of these two stations to the downtown central business districts (CBD) of 6 major Canadian cities. The modes of transportation used for the trip calculations were
 
 * Transit Only
-    * includes walking to stations
+    * Time and distance calculations include walking to and from stations
 * Bike 
 * Bike + Transit 
-    * bike to main station and transit to destination
+    * Bike to main station and transit to destination
 * Drive 
 
 ### Origin  - Station Selection 
@@ -83,18 +83,27 @@ Destinations were selected for each city. Each destination was either a major Ar
 
 ### Buffer and Home Selection
 
-For each origin at a station, a 5km diameter buffer is drawn around the station. Within that 5km buffer, 25 points (ie., lat lon coordinates) are randomly selected using a seed to ensure reproducibility. A different seed is used for each station. Below is an example of the buffer and 25 points selected for the Ottawa Barrhaven Station. 
+For each origin at a station, a 5km diameter buffer is drawn around the station. Within that 5km buffer, 25 points (ie., lat lon coordinates) are randomly selected using a seed to ensure reproducibility. A different seed is used for each station. Below is an example of the buffer and 25 points selected for the Ottawa Barrhaven Station.
+
+##### Figure 1. 5km buffer around Barrhaven Station in Ottawa.   
+
+![](barrhaven_buffer.png)
 
 
+##### Figure 2. Randomly selected points within the 5km buffer around Barrhaven station.  
 
+![](buffer_points.png)
 
+For each trip type (i.e., Transit Only, Bike, Bike + Transit, and Drive) the `googleway` R package is used to generate trips from the randomly generated points to the destination. All trips are scheduled to arrive at the destination at 8:30am on either Tuesday June 11th or Tuesday June 25th. For the Bike + Transit trips, two trips are generated. First, a trip from the randomly selected point to the station of interest by bicycle, then a trip from the station of interest to the destination by transit. 
 
-For each trip, the driving distance from the home street address to the CBD will be compared to a trip that is completed fully using public transit, and one that involves walking (if the MRT is less than 1km from the home) or biking (if the MRT is greater than 1km from the home but less than 5km) from the home. Below we provide an example with one street address (189 Portrush Ave, Ottawa, ON K2J 5K1) for the Fallowfield station BRT station in Ottawa to Downtown Ottawa. 
+##### Figure 3. Googleway transit routes from randomly selected points to destination.  
 
+![](barrhaven_routes.png)
+Once all of the routes were calculated the travel time and travel distance elements were extracted from each trip type and each route and organized into a tidy dataset. On average there were 25 routes per trip type, however, on some occasions some routes failed to geocode. Table 1 presents the city, station, and trip type sample sizes for all cities. 
 
 ## Read Data
 
-```{r, warning = FALSE, message = FALSE}
+```{r,  include = FALSE, warning = FALSE, message = FALSE}
 barrhaven <- read_csv("Ottawa/ottawa_barrhaven_bike_transit_drive.csv")
 blair <- read_csv("Ottawa/ottawa_blaire_bike_transit_drive.csv")
 scar <- read_csv("Toronto/toronto_scarborough_bike_transit_drive.csv")
@@ -117,30 +126,104 @@ data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, h
 write_csv(data, file = "mode_city_data.csv")
 ```
 
-## Summary statistics by mode
-
 ```{r, warning = FALSE, message = FALSE}
-#rm_covsum(data=data, maincov = 'mode',
-#covs=c('distance_km','duration_hours'))
+summary_data <- data %>% 
+  group_by(station) %>%
+    summarize(n = n())
 ```
 
-## Summary statistics by station
+```{r, include = FALSE, warning = FALSE, message = FALSE}
+data <- data %>%
+	mutate(city = case_when(
+		station == "Barrhaven Center Station, Ottawa, Canada " ~ "Ottawa",
+		station == "Blair Station, Ottawa, Canada" ~ "Ottawa",
+		station == "Bridgeport Station, Vancouver, Canada" ~ "Vancouver",
+		station == "Surrey Central Station, Surrey, Canada" ~ "Vancouver",
+		station == "Heritage Valley Station, Edmonton, Canada" ~ "Edmonton",
+		station == "Naki Transit Centre, Edmonton, Canada" ~ "Edmonton",
+		station == "North Pointe Transit Terminal, Calgary, Canada" ~ "Calgary",
+		station == "McKenzie Towne, Calgary, Canada" ~ "Calgary",
+		station == "Brossard Station, Montreal, Canada" ~ "Montreal",
+		station == "Riviere-des-Prairies Station, Montreal, Canada" ~ "Montreal",
+		station == "Scarborough GO Station, Toronto, Canada" ~ "Toronto",
+		station == "Vaughan Metropolitan Centre Station, Toronto, Canada" ~ "Toronto"
+	))
 
-```{r, warning = FALSE, message = FALSE}
-#rm_covsum(data=data, maincov = 'station',
-#covs=c('distance_km','duration_hours'))
+data <- data %>%
+	mutate(station_name = case_when(
+		station == "Barrhaven Center Station, Ottawa, Canada " ~ "Barrhaven Center",
+		station == "Blair Station, Ottawa, Canada" ~ "Blair",
+		station == "Bridgeport Station, Vancouver, Canada" ~ "Bridgeport",
+		station == "Surrey Central Station, Surrey, Canada" ~ "Surrey Central",
+		station == "Heritage Valley Station, Edmonton, Canada" ~ "Heritage Valley",
+		station == "Naki Transit Centre, Edmonton, Canada" ~ "Naki Transit Centre",
+		station == "North Pointe Transit Terminal, Calgary, Canada" ~ "North Pointe Transit Terminal",
+		station == "McKenzie Towne, Calgary, Canada" ~ "McKenzie Towne",
+		station == "Brossard Station, Montreal, Canada" ~ "Brossard",
+		station == "Riviere-des-Prairies Station, Montreal, Canada" ~ "Riviere-des-Prairies",
+		station == "Scarborough GO Station, Toronto, Canada" ~ "Scarborough GO",
+		station == "Vaughan Metropolitan Centre Station, Toronto, Canada" ~ "Vaughan Metropolitan Centre"
+	))
 ```
 
-## Data Viz by time
+##### Figure 1. Number of observations per station   
+
+| Station | Number of observations |                                         
+| ------- | ---------------------- | 
+| Barrhaven Center Station, Ottawa, Canada | 88 |           
+| Blair Station, Ottawa, Canada | 96 |                       
+| Bridgeport Station, Vancouver, Canada | 96 |                 
+| Surrey Central Station, Surrey, Canada | 96 |   
+| Heritage Valley Station, Edmonton, Canada | 96 |           
+| Naki Transit Centre, Edmonton, Canada | 96 |              
+| North Pointe Transit Terminal, Calgary, Canada | 96 |   
+| McKenzie Towne, Calgary, Canada | 96 |   
+| Brossard Station, Montreal, Canada | 80 |    
+| Riviere-des-Prairies Station, Montreal, Canada | 100 |        
+| Scarborough GO Station, Toronto, Canada | 92 |              
+| Vaughan Metropolitan Centre Station, Toronto, Canada | 100 |  
+
+# Analysis
+
+Descriptive analysis will be conducted to describe the trip time and distance for all stations and cities together, then separately for individual cities. No statistical tests will be performed. 
+
+##### Table 2. Descriptive statisics for travel time and mode by trip type by station
+
+```{r, warning = FALSE, message = FALSE}
+rm_covsum(data=data, maincov = 'station', pvalue = FALSE,
+covs=c('distance_km','duration_hours'))
+```
+
+Across of the stations the longest travel time on average was Surrey Central Station with an average travel time of 66 minutes. McKenzie Town in Calgary and Riviere-des-Prairies in Montreal also had average travel times of 60 minutes. The shortest average travel times were Blair Station in Ottawa and Brossard Station in Montreal with average travel times being 36 minutes. It should be noted that the stations we selected were chosen to be relatively far from the downtown, with an average of distance of 22.2km and a range of 5.3km to 46.4km. 
+
+##### Table 3. Descriptive statisics for travel time and mode by trip type
+
+```{r, warning = FALSE, message = FALSE}
+rm_covsum(data=data, maincov = 'mode', pvalue = FALSE,
+covs=c('distance_km','duration_hours'))
+```
+
+On average across all modes the trip duration was 48 minutes with a mean distance of 22.2km. On average car trips were the fastest at 30 minutes on average and a mean distance of 22.1km. The next fastest trip mode was biking to transit with an average time of 36 minutes and distance of 25.3km. Transit and cycling the entire distance had similar times with average travel times of 72 minutes. 
+
+##### Figure 4. Visualization of travel time by mode and city
 
 ```{r, warning = FALSE, message = FALSE}
 viz <- ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
   geom_density_ridges() + 
   stat_density_ridges(quantile_lines = TRUE, alpha = 0.75, quantiles = 2) +
-  facet_wrap(~ station)
+  labs(
+  x = "Duration in Hours",
+  y = "Travel Mode",
+  fill = "Travel Mode") +
+  facet_wrap(~ station_name)
 plot(viz)
 ```
 
+The `joy plot` shows a histogram for travel time for each travel mode and each station. In general, the car travel mode has the shortest travel time and the most narrow range of the distribution. This suggests that driving is the fastest travel mode and the most consistent in terms of time. The next fastest travel mode was bike + transit, which was generally similar in travel time to driving except for the McKenzie Towne (Calgary), Blair (Ottawa), and Naki Transit Center (Calgary) stations. The distribution of the bike + transit travel times was wider for bike + transit compared to driving. Taking transit was rarely competitive with driving or biking + transit. The closest transit time between bike, bike + transit, and car was Surrey Central station. For transit use, the distribution was very wide, particularly for McKenzie Towne and Heritage Valley. Finally, simply cycling the entire distance was 
+
+## Conclusion
+
+Based on the analysis, overall cycling plus using transit to get from suburban areas appears to be competitive with driving and is faster than taking transit only or cycling the entire distance. The time difference across all cities was approximately 6 minutes slow for cycling to transit compared to driving, however, the distribution was wider for cycling to transit compared to driving. 
 
 ## References
 
