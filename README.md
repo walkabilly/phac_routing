@@ -32,6 +32,42 @@ Routing tools will be used to compare travel time, travel distance, and estimate
 
 ## Data and Code
 
+The data and code are available for all stations. You will need the following to run the code
+
+* GoogleMaps API Key 
+    * Parameter is set as `map_key` in each file. You can register for a GoogleMaps API Key in the Google Developers portal.
+* Required packages
+    * googleway
+    * tidyverse
+    * ggmap
+    * sf
+    * sfext
+    * googlePolylines
+    * mapview
+    * jsonlite
+    * collapse
+
+Each station as it's own R Markdown file that will need to edited if the code is be rerun. The following code blocks need to be edited at the beginning and end of the document. These blocks are labelled with an `EDIT ME` tag and the end of the code block.
+
+#### Beginning of Document
+
+* Draw buffer and select points 
+    * The arrival destination
+* Set origin point
+    * The departure station
+* Setup departure location and arrival time
+    * The arrival time. Note the the date needs to be in the future and watch the time zone. 
+* List of variables for geocoding
+    * This is the list for parsing the JSON return from the GoogleMaps API. If a location does not geocode you will need to edit to the correct number. By default there should be 25 locations. 
+* Seed
+    * This sets the seed for the random generation of points within the generated buffer
+    
+#### End of Document
+
+* Writing CSV Files
+    * Provide file names and locations for the 2 datasets to be saved
+
+
 City  | Station | Markdown | CSV Files
 ------------- | ------------- | ------------- | -------------
 Ottawa  | Blair Station | [Click here](https://github.com/walkabilly/phac_routing/blob/main/Ottawa/Ottawa_Blaire_Station.md) | [Download](https://github.com/walkabilly/phac_routing/blob/main/Ottawa/ottawa_blaire_bike_transit_drive.csv)
