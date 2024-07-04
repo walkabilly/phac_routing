@@ -67,6 +67,7 @@ Each station as it's own R Markdown file that will need to edited if the code is
 * Writing CSV Files
     * Provide file names and locations for the 2 datasets to be saved
 
+### Table 1. Data and Markdown files
 
 City  | Station | Markdown | CSV Files
 ------------- | ------------- | ------------- | -------------
