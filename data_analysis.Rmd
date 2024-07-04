@@ -28,15 +28,11 @@ Six cities were chosen (Ottawa, Montreal, Toronto, Vancouver, Edmonton, and Calg
 
 ## Results
 
-Across of the stations the longest travel time on average was Surrey Central Station with an average travel time of 66 minutes. McKenzie Town in Calgary and Riviere-des-Prairies in Montreal also had average travel times of 60 minutes. The shortest average travel times were Blair Station in Ottawa and Brossard Station in Montreal with average travel times being 36 minutes. It should be noted that the stations we selected were chosen to be relatively far from the downtown, with an average of distance of 22.2km and a range of 5.3km to 46.4km. 
-
 On average across all modes the trip duration was 48 minutes with a mean distance of 22.2km. On average car trips were the fastest at 30 minutes on average and a mean distance of 22.1km. The next fastest trip mode was biking to transit with an average time of 36 minutes and distance of 25.3km. Transit and cycling the entire distance had similar times with average travel times of 72 minutes. 
 
 ## Discussion
 
 This analysis examined trips across 6 large Canadian cities and the results suggest that cycling to transit is an excellent means to include more physical activity into the day. On average, cycling to transit adds on average 6minutes (30minutes by driving compared to 36minutes cycling and using transit) to the time of a commute compared to other modes, including driving. In many cases, cycling to transit is very time competitive to driving and is usually the second fastest form of travel, usually faster than transit only trips.
-
-While this analysis did not consider whether key AT supporting infrastructure or policy exists on these trips (Can-BICS level cycling infrastructure, or safe/secure parking, or policies allowing AT equipment on transit), it does suggest that if this infrastructure is built, a combination of cycling and transit can be very competitive with driving for suburban trips. Such investments could support higher levels of physical activity, lower greenhouse gas emissions and road congestion, and higher transit ridership.
 
 
 
@@ -243,7 +239,10 @@ viz <- ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
 plot(viz)
 ```
 
-The `joy plot` shows a histogram for travel time for each travel mode and each station. In general, the car travel mode has the shortest travel time and the most narrow range of the distribution. This suggests that driving is the fastest travel mode and the most consistent in terms of time. The next fastest travel mode was bike + transit, which was generally similar in travel time to driving except for the McKenzie Towne (Calgary), Blair (Ottawa), and Naki Transit Center (Calgary) stations. The distribution of the bike + transit travel times was wider for bike + transit compared to driving. Taking transit was rarely competitive with driving or biking + transit. The closest transit time between bike, bike + transit, and car was Surrey Central station. For transit use, the distribution was very wide, particularly for McKenzie Towne and Heritage Valley. Finally, simply cycling the entire distance was 
+The `joy plot` shows a histogram for travel time for each travel mode and each station. In general, the car travel mode has the shortest travel time and the most narrow range of the distribution. This suggests that driving is the fastest travel mode and the most consistent in terms of time. The next fastest travel mode was bike + transit, which was generally similar in travel time to driving except for the McKenzie Towne (Calgary), Blair (Ottawa), and Naki Transit Center (Calgary) stations. The distribution of the bike + transit travel times was wider for bike + transit compared to driving. Taking transit was rarely competitive with driving or biking + transit. The closest transit time between bike, bike + transit, and car was Surrey Central station. For transit use, the distribution was very wide, particularly for McKenzie Towne and Heritage Valley. Finally, simply cycling the entire distance was often time competitive with public transit and half of the time of driving. 
+
+While this analysis did not consider whether key AT supporting infrastructure, it does suggest that if this infrastructure is built, a combination of cycling and transit can be very competitive with driving for suburban trips. Such investments could support higher levels of physical activity, lower greenhouse gas emissions and road congestion, and higher transit ridership.
+
 
 ## Limitations
 
