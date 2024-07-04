@@ -136,6 +136,20 @@ heritage <- read_csv("Edmonton/edmonton_heritage_bike_transit_drive.csv")
 naki <- read_csv("Edmonton/edmonton_naki_bike_transit_drive.csv")
 surrey <- read_csv("Vancouver/vancouver_surrey_bike_transit_drive.csv")
 bridge <- read_csv("Vancouver/vancouver_bridgeport_bike_transit_drive.csv")
+
+
+barrhaven_bike <- read_csv("Ottawa/ottawa_barrhaven_bike_plus_transit.csv")
+blair_bike <- read_csv("Ottawa/ottawa_blaire_bike_plus_transit.csv")
+scar_bike <- read_csv("Toronto/toronto_scarborough_bike_plus_transit.csv")
+vaughn_bike <- read_csv("Toronto/toronto_vaughn_bike_plus_transit.csv")
+bross_bike <- read_csv("Montreal/montreal_brossard_bike_plus_transit.csv")
+rivier_bike <- read_csv("Montreal/montreal_riviereprairie_bike_plus_transit.csv")
+mckenzie_bike <- read_csv("Calgary/calgary_mckenzie_bike_plus_transit.csv")
+np_bike <- read_csv("Calgary/calgary_northpoint_bike_plus_transit.csv")
+heritage_bike <- read_csv("Edmonton/edmonton_heritage_bike_plus_transit.csv")
+naki_bike <- read_csv("Edmonton/edmonton_naki_bike_plus_transit.csv")
+surrey_bike <- read_csv("Vancouver/vancouver_surrey_bike_plus_transit.csv")
+bridge_bike <- read_csv("Vancouver/vancouver_bridgeport_bike_plus_transit.csv")
 ```
 
 ## Joining Data
@@ -143,7 +157,10 @@ bridge <- read_csv("Vancouver/vancouver_bridgeport_bike_transit_drive.csv")
 ```{r, warning = FALSE, message = FALSE}
 data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, heritage, naki, surrey, bridge)
 
+data_bike <- bind_rows(barrhaven_bike, blair_bike, scar_bike, vaughn_bike, bross_bike, rivier_bike, mckenzie_bike, np_bike, heritage_bike, naki_bike, surrey_bike, bridge_bike)
+
 write_csv(data, file = "mode_city_data.csv")
+write_csv(data_bike, file = "bike_transit_city_data.csv")
 ```
 
 ```{r, warning = FALSE, message = FALSE}
@@ -210,7 +227,7 @@ Descriptive analysis will be conducted to describe the trip time and distance fo
 ##### Table 2. Descriptive statisics for travel time and mode by trip type by station
 
 ```{r, warning = FALSE, message = FALSE}
-rm_covsum(data=data, maincov = 'station', pvalue = FALSE,
+rm_covsum(data=data, maincov = 'station', pvalue = FALSE, IQR = TRUE,
 covs=c('distance_km','duration_hours'))
 ```
 
@@ -219,11 +236,21 @@ Across of the stations the longest travel time on average was Surrey Central Sta
 ##### Table 3. Descriptive statisics for travel time and mode by trip type
 
 ```{r, warning = FALSE, message = FALSE}
-rm_covsum(data=data, maincov = 'mode', pvalue = FALSE,
+rm_covsum(data=data, maincov = 'mode', pvalue = FALSE, IQR = TRUE,
 covs=c('distance_km','duration_hours'))
 ```
 
 On average across all modes the trip duration was 48 minutes with a mean distance of 22.2km. On average car trips were the fastest at 30 minutes on average and a mean distance of 22.1km. The next fastest trip mode was biking to transit with an average time of 36 minutes and distance of 25.3km. Transit and cycling the entire distance had similar times with average travel times of 72 minutes. 
+
+
+##### Table 4. Descriptive statisics for physical activity contribution
+
+```{r, warning = FALSE, message = FALSE}
+rm_covsum(data=data_bike, pvalue = FALSE, IQR = TRUE,
+covs=c('bike_to_station_duration_hours'))
+```
+
+On average the bike to the transit station was 18minutes long with an interquartile range of 12minutes to 24minutes. An 18 minute per day bicycle commute, 5 day per week, would contribute 90minutes of weekly physical activity. This would represent 60 percent of the recommended 150 minutes of physical activity per week. There would also be additional contributions of walking to the destination form the station. 
 
 ##### Figure 4. Visualization of travel time by mode and city
 
@@ -235,8 +262,10 @@ viz <- ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
   x = "Duration in Hours",
   y = "Travel Mode",
   fill = "Travel Mode") +
-  facet_wrap(~ station_name)
+  facet_wrap(~ station_name) + theme(legend.position = "bottom")
 plot(viz)
+
+ggsave("viz.pdf", dpi = 300, height = 5, width = 8)
 ```
 
 The `joy plot` shows a histogram for travel time for each travel mode and each station. In general, the car travel mode has the shortest travel time and the most narrow range of the distribution. This suggests that driving is the fastest travel mode and the most consistent in terms of time. The next fastest travel mode was bike + transit, which was generally similar in travel time to driving except for the McKenzie Towne (Calgary), Blair (Ottawa), and Naki Transit Center (Calgary) stations. The distribution of the bike + transit travel times was wider for bike + transit compared to driving. Taking transit was rarely competitive with driving or biking + transit. The closest transit time between bike, bike + transit, and car was Surrey Central station. For transit use, the distribution was very wide, particularly for McKenzie Towne and Heritage Valley. Finally, simply cycling the entire distance was often time competitive with public transit and half of the time of driving. 

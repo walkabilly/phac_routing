@@ -126,7 +126,10 @@ Once all of the routes were calculated the travel time and travel distance eleme
 ```r
 data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, heritage, naki, surrey, bridge)
 
+data_bike <- bind_rows(barrhaven_bike, blair_bike, scar_bike, vaughn_bike, bross_bike, rivier_bike, mckenzie_bike, np_bike, heritage_bike, naki_bike, surrey_bike, bridge_bike)
+
 write_csv(data, file = "mode_city_data.csv")
+write_csv(data_bike, file = "bike_transit_city_data.csv")
 ```
 
 
@@ -163,7 +166,7 @@ Descriptive analysis will be conducted to describe the trip time and distance fo
 
 
 ```r
-rm_covsum(data=data, maincov = 'station', pvalue = FALSE,
+rm_covsum(data=data, maincov = 'station', pvalue = FALSE, IQR = TRUE,
 covs=c('distance_km','duration_hours'))
 ```
 
@@ -220,20 +223,20 @@ covs=c('distance_km','duration_hours'))
    <td style="text-align:right;"> 29.5 (7.0) </td>
   </tr>
   <tr>
-   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Min,Max) </td>
-   <td style="text-align:right;"> 21.6 (5.3, 46.4) </td>
-   <td style="text-align:right;"> 28.1 (19.1, 40.8) </td>
-   <td style="text-align:right;"> 11.4 (5.3, 20.1) </td>
-   <td style="text-align:right;"> 15.1 (5.7, 23.0) </td>
-   <td style="text-align:right;"> 21.9 (12.2, 35.5) </td>
-   <td style="text-align:right;"> 21.9 (15.0, 46.4) </td>
-   <td style="text-align:right;"> 25.7 (13.6, 35.9) </td>
-   <td style="text-align:right;"> 18.7 (7.1, 26.5) </td>
-   <td style="text-align:right;"> 19.9 (10.6, 32.8) </td>
-   <td style="text-align:right;"> 24.6 (16.3, 43.2) </td>
-   <td style="text-align:right;"> 18.5 (10.7, 29.8) </td>
-   <td style="text-align:right;"> 33.2 (22.4, 45.2) </td>
-   <td style="text-align:right;"> 28.2 (16.6, 45.3) </td>
+   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
+   <td style="text-align:right;"> 21.6 (16.6, 27.3) </td>
+   <td style="text-align:right;"> 28.1 (25.1, 30.7) </td>
+   <td style="text-align:right;"> 11.4 (8.9, 14.7) </td>
+   <td style="text-align:right;"> 15.1 (12.0, 16.3) </td>
+   <td style="text-align:right;"> 21.9 (18.9, 25.6) </td>
+   <td style="text-align:right;"> 21.9 (19.8, 23.9) </td>
+   <td style="text-align:right;"> 25.7 (22.3, 28.3) </td>
+   <td style="text-align:right;"> 18.7 (15.1, 20.2) </td>
+   <td style="text-align:right;"> 19.9 (16.5, 23.8) </td>
+   <td style="text-align:right;"> 24.6 (20.3, 27.5) </td>
+   <td style="text-align:right;"> 18.5 (15.0, 19.9) </td>
+   <td style="text-align:right;"> 33.2 (29.7, 38.1) </td>
+   <td style="text-align:right;"> 28.2 (24.4, 33.2) </td>
   </tr>
   <tr>
    <td style="text-align:left;"> <span style="font-weight: bold;">duration hours</span> </td>
@@ -268,20 +271,20 @@ covs=c('distance_km','duration_hours'))
    <td style="text-align:right;"> 0.9 (0.4) </td>
   </tr>
   <tr>
-   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Min,Max) </td>
-   <td style="text-align:right;"> 0.7 (0.1, 5.1) </td>
-   <td style="text-align:right;"> 0.9 (0.2, 2.8) </td>
-   <td style="text-align:right;"> 0.6 (0.2, 2.7) </td>
-   <td style="text-align:right;"> 0.6 (0.2, 3.3) </td>
-   <td style="text-align:right;"> 0.8 (0.2, 2.1) </td>
-   <td style="text-align:right;"> 0.8 (0.1, 5.1) </td>
-   <td style="text-align:right;"> 0.9 (0.1, 3.6) </td>
-   <td style="text-align:right;"> 0.8 (0.1, 1.8) </td>
-   <td style="text-align:right;"> 0.8 (0.2, 2.0) </td>
-   <td style="text-align:right;"> 0.9 (0.2, 2.2) </td>
-   <td style="text-align:right;"> 0.7 (0.2, 1.4) </td>
-   <td style="text-align:right;"> 1.0 (0.2, 2.4) </td>
-   <td style="text-align:right;"> 0.8 (0.1, 1.9) </td>
+   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
+   <td style="text-align:right;"> 0.7 (0.5, 1.1) </td>
+   <td style="text-align:right;"> 0.9 (0.5, 1.4) </td>
+   <td style="text-align:right;"> 0.6 (0.3, 0.7) </td>
+   <td style="text-align:right;"> 0.6 (0.5, 0.8) </td>
+   <td style="text-align:right;"> 0.8 (0.4, 1.1) </td>
+   <td style="text-align:right;"> 0.8 (0.5, 1.1) </td>
+   <td style="text-align:right;"> 0.9 (0.5, 1.2) </td>
+   <td style="text-align:right;"> 0.8 (0.5, 1.0) </td>
+   <td style="text-align:right;"> 0.8 (0.4, 1.1) </td>
+   <td style="text-align:right;"> 0.9 (0.6, 1.3) </td>
+   <td style="text-align:right;"> 0.7 (0.6, 1.0) </td>
+   <td style="text-align:right;"> 1.0 (0.7, 1.4) </td>
+   <td style="text-align:right;"> 0.8 (0.6, 1.3) </td>
   </tr>
 </tbody>
 </table>
@@ -292,7 +295,7 @@ Across of the stations the longest travel time on average was Surrey Central Sta
 
 
 ```r
-rm_covsum(data=data, maincov = 'mode', pvalue = FALSE,
+rm_covsum(data=data, maincov = 'mode', pvalue = FALSE, IQR = TRUE,
 covs=c('distance_km','duration_hours'))
 ```
 
@@ -325,12 +328,12 @@ covs=c('distance_km','duration_hours'))
    <td style="text-align:right;"> 21.0 (6.8) </td>
   </tr>
   <tr>
-   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Min,Max) </td>
-   <td style="text-align:right;"> 21.6 (5.3, 46.4) </td>
-   <td style="text-align:right;"> 20.0 (5.3, 38.2) </td>
-   <td style="text-align:right;"> 25.5 (11.3, 45.2) </td>
-   <td style="text-align:right;"> 20.3 (5.7, 45.3) </td>
-   <td style="text-align:right;"> 20.6 (5.8, 46.4) </td>
+   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
+   <td style="text-align:right;"> 21.6 (16.6, 27.3) </td>
+   <td style="text-align:right;"> 20.0 (16.2, 25.2) </td>
+   <td style="text-align:right;"> 25.5 (19.9, 29.2) </td>
+   <td style="text-align:right;"> 20.3 (15.5, 28.2) </td>
+   <td style="text-align:right;"> 20.6 (16.2, 26.0) </td>
   </tr>
   <tr>
    <td style="text-align:left;"> <span style="font-weight: bold;">duration hours</span> </td>
@@ -349,17 +352,51 @@ covs=c('distance_km','duration_hours'))
    <td style="text-align:right;"> 1.2 (0.5) </td>
   </tr>
   <tr>
-   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Min,Max) </td>
-   <td style="text-align:right;"> 0.7 (0.1, 5.1) </td>
-   <td style="text-align:right;"> 1.2 (0.3, 2.4) </td>
-   <td style="text-align:right;"> 0.6 (0.1, 2.1) </td>
-   <td style="text-align:right;"> 0.5 (0.2, 0.8) </td>
-   <td style="text-align:right;"> 1.1 (0.4, 5.1) </td>
+   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
+   <td style="text-align:right;"> 0.7 (0.5, 1.1) </td>
+   <td style="text-align:right;"> 1.2 (0.9, 1.4) </td>
+   <td style="text-align:right;"> 0.6 (0.4, 0.7) </td>
+   <td style="text-align:right;"> 0.5 (0.4, 0.6) </td>
+   <td style="text-align:right;"> 1.1 (0.9, 1.3) </td>
   </tr>
 </tbody>
 </table>
 
 On average across all modes the trip duration was 48 minutes with a mean distance of 22.2km. On average car trips were the fastest at 30 minutes on average and a mean distance of 22.1km. The next fastest trip mode was biking to transit with an average time of 36 minutes and distance of 25.3km. Transit and cycling the entire distance had similar times with average travel times of 72 minutes. 
+
+
+##### Table 4. Descriptive statisics for physical activity contribution
+
+
+```r
+rm_covsum(data=data_bike, pvalue = FALSE, IQR = TRUE,
+covs=c('bike_to_station_duration_hours'))
+```
+
+<table class="table" style="color: black; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">  </th>
+   <th style="text-align:right;"> n=283 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> <span style="font-weight: bold;">bike to station duration hours</span> </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Mean (sd) </td>
+   <td style="text-align:right;"> 0.3 (0.1) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
+   <td style="text-align:right;"> 0.3 (0.2, 0.4) </td>
+  </tr>
+</tbody>
+</table>
+
+On average the bike to the transit station was 18minutes long with an interquartile range of 12minutes to 24minutes. An 18 minute per day bicycle commute, 5 day per week, would contribute 90minutes of weekly physical activity. This would represent 60 percent of the recommended 150 minutes of physical activity per week. There would also be additional contributions of walking to the destination form the station. 
 
 ##### Figure 4. Visualization of travel time by mode and city
 
@@ -372,15 +409,17 @@ viz <- ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
   x = "Duration in Hours",
   y = "Travel Mode",
   fill = "Travel Mode") +
-  facet_wrap(~ station_name)
+  facet_wrap(~ station_name) + theme(legend.position = "bottom")
 plot(viz)
 ```
 
-![](data_analysis_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](data_analysis_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
-The `joy plot` shows a histogram for travel time for each travel mode and each station. In general, the car travel mode has the shortest travel time and the most narrow range of the distribution. This suggests that driving is the fastest travel mode and the most consistent in terms of time. The next fastest travel mode was bike + transit, which was generally similar in travel time to driving except for the McKenzie Towne (Calgary), Blair (Ottawa), and Naki Transit Center (Calgary) stations. The distribution of the bike + transit travel times was wider for bike + transit compared to driving. Taking transit was rarely competitive with driving or biking + transit. The closest transit time between bike, bike + transit, and car was Surrey Central station. For transit use, the distribution was very wide, particularly for McKenzie Towne and Heritage Valley. Finally, simply cycling the entire distance was 
+```r
+ggsave("viz.pdf", dpi = 300, height = 5, width = 8)
+```
 
-
+The `joy plot` shows a histogram for travel time for each travel mode and each station. In general, the car travel mode has the shortest travel time and the most narrow range of the distribution. This suggests that driving is the fastest travel mode and the most consistent in terms of time. The next fastest travel mode was bike + transit, which was generally similar in travel time to driving except for the McKenzie Towne (Calgary), Blair (Ottawa), and Naki Transit Center (Calgary) stations. The distribution of the bike + transit travel times was wider for bike + transit compared to driving. Taking transit was rarely competitive with driving or biking + transit. The closest transit time between bike, bike + transit, and car was Surrey Central station. For transit use, the distribution was very wide, particularly for McKenzie Towne and Heritage Valley. Finally, simply cycling the entire distance was often time competitive with public transit and half of the time of driving. 
 
 While this analysis did not consider whether key AT supporting infrastructure, it does suggest that if this infrastructure is built, a combination of cycling and transit can be very competitive with driving for suburban trips. Such investments could support higher levels of physical activity, lower greenhouse gas emissions and road congestion, and higher transit ridership.
 
