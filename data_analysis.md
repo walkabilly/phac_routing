@@ -11,7 +11,31 @@ output:
 
 
 
-## Introduction
+## Executive Summary
+
+Unfortunately, active transportation percentages in Canada are very low. Driving has the advantage of direct transportation from home to destination, but often the disadvantage of traffic congestion and the costs of operating a vehicle and parking. Transit, including light rail, subways, and bus rapid transit are often undeterred by traffic congestion. However, there are often multiple legs to a trip (e.g., walking to a bus stop, waiting for a bus, travelling to a station, which can make transit use a longer trip than driving). By investigating the potential of cycling to transit stations to replace the local bus portion of trips, we may see that this can reduce some of the time taken by some of the legs of the trip in cases where individuals can walk to the station, or cycle to it from a few kilometers away, and increase physical activity levels. 
+
+The purpose of this analysis was to compare travel distance and physical activity amounts attained from point-to-point travel by automobile, public transit only, bicycle only, and bicycle to public transit to downtown areas. 
+
+## Methods
+
+Six cities were chosen (Ottawa, Montreal, Toronto, Vancouver, Edmonton, and Calgary). Two stations were selected for each city. Each station was selected based on distance from the city center and proximity to a transit station. T The downtown destinations selected were either art galleries or libraries as public spaces in each city. Twenty five randomly selected street addresses within a 5km buffer of these two stations to the downtown central business districts. All of the code and a detailed read me file are available for the analysis [https://github.com/walkabilly/phac_routing](https://github.com/walkabilly/phac_routing). 
+
+## Results
+
+Across of the stations the longest travel time on average was Surrey Central Station with an average travel time of 66 minutes. McKenzie Town in Calgary and Riviere-des-Prairies in Montreal also had average travel times of 60 minutes. The shortest average travel times were Blair Station in Ottawa and Brossard Station in Montreal with average travel times being 36 minutes. It should be noted that the stations we selected were chosen to be relatively far from the downtown, with an average of distance of 22.2km and a range of 5.3km to 46.4km. 
+
+On average across all modes the trip duration was 48 minutes with a mean distance of 22.2km. On average car trips were the fastest at 30 minutes on average and a mean distance of 22.1km. The next fastest trip mode was biking to transit with an average time of 36 minutes and distance of 25.3km. Transit and cycling the entire distance had similar times with average travel times of 72 minutes. 
+
+## Discussion
+
+This analysis examined trips across 6 large Canadian cities and the results suggest that cycling to transit is an excellent means to include more physical activity into the day. On average, cycling to transit adds on average 6minutes (30minutes by driving compared to 36minutes cycling and using transit) to the time of a commute compared to other modes, including driving. In many cases, cycling to transit is very time competitive to driving and is usually the second fastest form of travel, usually faster than transit only trips.
+
+While this analysis did not consider whether key AT supporting infrastructure or policy exists on these trips (Can-BICS level cycling infrastructure, or safe/secure parking, or policies allowing AT equipment on transit), it does suggest that if this infrastructure is built, a combination of cycling and transit can be very competitive with driving for suburban trips. Such investments could support higher levels of physical activity, lower greenhouse gas emissions and road congestion, and higher transit ridership.
+
+
+
+# Introduction
 
 Active transportation (AT) is one of the four domains of physical activity and is associated with higher levels of total physical activity. Consequently, it is an important behaviour to target for health promotion and chronic disease prevention. AT is particularly attractive as a target for physical activity promotion, given that individuals generally travel to various destinations throughout the day. By replacing sedentary forms of transportation (such as motor vehicle use) with active forms of transportation (such as cycling or walking), Canadians can increase their physical activity levels. Moreover, walking and especially cycling for transportation are often carried out at intensitieis of physical activity (i.e., moderate-to-vigourous intensity) that contribute towards meeting the physical activity recommendation from the the Canadian 24-Hour Movement Guidelines.
 
@@ -19,7 +43,7 @@ Typically, people opt for active modes of transportation for travelling shorter 
 
 In many countries with more mature MRT systems, it is common to see bikes parked at transit stations with commuters continuing their journey by bus or rail. Theoretically, such transportation choices are becoming increasingly available to more Canadians as new commuter rail, subway, Light Rapid Transit, and Bus Rapid Transit become available in large Canadian cities. Although some of the supporting infrastructure of secure bike parking and easy walking and cycling sidewalks and bikeways are not yet available, those infrastructure expenses are a fraction of the cost of the MRT projects themselves. A key question to consider before developing policy aimed at getting people to use more AT, is how do trips incorporating AT to MRT compare to those completed entirely by car and/or entirely by transit? To determine this, it is important to understand how the duration of trips to MRT by walking or cycling compare to trips taken entirely by transit or entirely by driving.
 
-Driving has the advantage of direct transportation from home to destination, but often the disadvantage of traffic congestion and the costs of operating a vehicle and parking. While MRT is often undeterred by traffic congestion, there are often multiple legs to a trip, e.g. walking to a bus stop, waiting for a bus, travelling to a MRT station, which can make transit use a longer trip than driving. However, by investigating the potentional of taking AT to the MRT to replace the local bus portion of trips, we may see that this can reduce some of the time taken by some of the legs of the trip in cases where individuals can walk to the station, or cycle to it from a few kilometers away, AND increase physical activity levels. 
+Driving has the advantage of direct transportation from home to destination, but often the disadvantage of traffic congestion and the costs of operating a vehicle and parking. While MRT is often undeterred by traffic congestion, there are often multiple legs to a trip, e.g. walking to a bus stop, waiting for a bus, travelling to a MRT station, which can make transit use a longer trip than driving. However, by investigating the potentional of taking AT to the MRT to replace the local bus portion of trips, we may see that this can reduce some of the time taken by some of the legs of the trip in cases where individuals can walk to the station, or cycle to it from a few kilometers away, and increase physical activity levels. 
 
 ## Objective
 
@@ -27,7 +51,7 @@ To compare travel distance and physical activity amounts attained from point-to-
 
 ## Methods
 
-This used the [Google Route API](https://mapsplatform.google.com/maps-products/routes/) implemented in the [googleway R package](https://www.rdocumentation.org/packages/googleway/versions/2.7.8) to to compare travel time, travel distance, and estimated physical activity contribution of trips from 25 randomly selected street addresses within a 5km buffer of these two stations to the downtown central business districts (CBD) of 6 major Canadian cities. The modes of transportation used for the trip calculations were
+All of the code and a detailed read me file are available for the analysis [https://github.com/walkabilly/phac_routing](https://github.com/walkabilly/phac_routing). Sufficient detail is provided the replicate the analysis. This work used the [Google Route API](https://mapsplatform.google.com/maps-products/routes/) implemented in the [googleway R package](https://www.rdocumentation.org/packages/googleway/versions/2.7.8) to to compare travel time, travel distance, and estimated physical activity contribution of trips from 25 randomly selected street addresses within a 5km buffer of these two stations to the downtown central business districts (CBD) of 6 major Canadian cities. The modes of transportation used for the trip calculations were
 
 * Transit Only
     * Time and distance calculations include walking to and from stations
@@ -139,7 +163,7 @@ summary_data <- data %>%
 
 Descriptive analysis will be conducted to describe the trip time and distance for all stations and cities together, then separately for individual cities. No statistical tests will be performed. 
 
-##### Table 2. Descriptive statisics for travel time and mode by trip type by city
+##### Table 2. Descriptive statisics for travel time and mode by trip type by station
 
 
 ```r
@@ -359,6 +383,16 @@ plot(viz)
 ![](data_analysis_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 The `joy plot` shows a histogram for travel time for each travel mode and each station. In general, the car travel mode has the shortest travel time and the most narrow range of the distribution. This suggests that driving is the fastest travel mode and the most consistent in terms of time. The next fastest travel mode was bike + transit, which was generally similar in travel time to driving except for the McKenzie Towne (Calgary), Blair (Ottawa), and Naki Transit Center (Calgary) stations. The distribution of the bike + transit travel times was wider for bike + transit compared to driving. Taking transit was rarely competitive with driving or biking + transit. The closest transit time between bike, bike + transit, and car was Surrey Central station. For transit use, the distribution was very wide, particularly for McKenzie Towne and Heritage Valley. Finally, simply cycling the entire distance was 
+
+## Limitations
+
+There are a number of limitations to this work. The limitations mostly relate to the default settings in the Google Routing API, the random selection of points, and the time of day chosen for the analysis. 
+
+1. This analysis did not consider whether key AT supporting infrastructure or policy exists on these for the cycling trips. In many of the areas around the origin stations, cycling infrastructure is likely lacking. Improving cycling infrastructure around transit stations could support more cycling to transit, as many cyclists may not cycle in areas with poor infrastructure. 
+2. The transit routing uses the default settings in the Google Maps API for each of the modes. The transit options include potential alternate routing preferences including `less_walking` and `fewer_transfers`. We did not test each of the different transit routing options as sensitivity analyses. 
+3. The bicycle routing analysis includes the default Google bikeway analysis. The Google Routes API clearly states that `bicycling routes are in beta and might sometimes be missing clear sidewalks, pedestrian paths, or bicycling paths`. If there were paths that were more direct from residential areas to transit, this would make the bike trip shorter, and we are assuming that we are routing the bikes along roadways only. The bike to transit and transit trips may be slowed a bit because we are routing all those trips to a certain station, but in fact there may be a closer station to downtown that we are not accounting for. In those cases, we are modelling commuters back-tracking to the station of interest. 
+4. Related to point number 2, because the 25 points within the 5km buffer around the station were randomly generated, it sometimes happens that points are located in areas were a route is not able to be created (e.g., on water). This means that not all stations have 25 points. However, for a given station, the seed (i.e., where the points are generated) is the same, which means that all travel modes have the same number of points for a given station. 
+5. For the purpose of this work, we set the arrival time to Tuesday mornings at 8:30am (either on June 11 or June 18, 2024). Travel times vary over the morning and afternoon peak periods and we did not model trips across a variety of travel times. 
 
 ## Conclusion
 
