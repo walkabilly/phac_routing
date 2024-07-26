@@ -86,6 +86,15 @@ Vancouver  | Bridgeport Station | [Click here](https://github.com/walkabilly/pha
 
 ## Data Analysis
 
-[Click to view Rendered Markdown](https://github.com/walkabilly/phac_routing/blob/main/data_analysis.md)
+The data dictionary and data analysis are available
+
+* [Data Dictionary](https://github.com/walkabilly/phac_routing/blob/main/data_dictionary.xlsx)
+    * Click "download raw" to download the Excel File
+* [Click to view Rendered Markdown](https://github.com/walkabilly/phac_routing/blob/main/data_analysis.md)
+
+## Final Report
+
+The PDF version of the final report is available for download [here](https://github.com/walkabilly/phac_routing/blob/main/Report_to_submit.pdf)
+
 
 
