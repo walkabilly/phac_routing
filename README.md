@@ -94,7 +94,7 @@ The data dictionary and data analysis are available
 
 ## Final Report
 
-The PDF version of the final report is available for download [here](https://github.com/walkabilly/phac_routing/blob/main/Report_to_submit.pdf)
+The PDF version of the final report is available for download [here](https://github.com/walkabilly/phac_routing/blob/main/Report_to_submit_PHAC_Final.pdf)
 
 
 
