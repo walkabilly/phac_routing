@@ -123,7 +123,7 @@ Once all of the routes were calculated the travel time and travel distance eleme
 ## Joining Data
 
 
-```r
+``` r
 data <- bind_rows(barrhaven, blair, scar, vaughn, bross, rivier, mckenzie, np, heritage, naki, surrey, bridge)
 
 data_bike <- bind_rows(barrhaven_bike, blair_bike, scar_bike, vaughn_bike, bross_bike, rivier_bike, mckenzie_bike, np_bike, heritage_bike, naki_bike, surrey_bike, bridge_bike)
@@ -133,7 +133,7 @@ write_csv(data_bike, file = "bike_transit_city_data.csv")
 ```
 
 
-```r
+``` r
 summary_data <- data %>% 
   group_by(station) %>%
     summarize(n = n())
@@ -165,7 +165,7 @@ Descriptive analysis will be conducted to describe the trip time and distance fo
 ##### Table 2. Descriptive statisics for travel time and mode by trip type by station
 
 
-```r
+``` r
 rm_covsum(data=data, maincov = 'station', pvalue = FALSE, IQR = TRUE,
 covs=c('distance_km','duration_hours'))
 ```
@@ -208,35 +208,35 @@ covs=c('distance_km','duration_hours'))
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Mean (sd) </td>
-   <td style="text-align:right;"> 22.2 (7.8) </td>
+   <td style="text-align:right;"> 22.1 (7.8) </td>
    <td style="text-align:right;"> 28.1 (4.3) </td>
-   <td style="text-align:right;"> 11.5 (3.4) </td>
+   <td style="text-align:right;"> 11.5 (3.5) </td>
    <td style="text-align:right;"> 14.0 (3.6) </td>
-   <td style="text-align:right;"> 22.4 (5.0) </td>
-   <td style="text-align:right;"> 22.1 (4.2) </td>
-   <td style="text-align:right;"> 25.2 (4.3) </td>
-   <td style="text-align:right;"> 17.5 (4.1) </td>
-   <td style="text-align:right;"> 20.3 (4.9) </td>
-   <td style="text-align:right;"> 24.5 (5.2) </td>
-   <td style="text-align:right;"> 17.8 (3.5) </td>
-   <td style="text-align:right;"> 33.6 (5.7) </td>
-   <td style="text-align:right;"> 29.5 (7.0) </td>
+   <td style="text-align:right;"> 22.6 (5.2) </td>
+   <td style="text-align:right;"> 22.2 (4.1) </td>
+   <td style="text-align:right;"> 25.3 (5.2) </td>
+   <td style="text-align:right;"> 16.9 (4.3) </td>
+   <td style="text-align:right;"> 20.4 (5.0) </td>
+   <td style="text-align:right;"> 24.6 (5.1) </td>
+   <td style="text-align:right;"> 17.6 (3.5) </td>
+   <td style="text-align:right;"> 34.3 (6.0) </td>
+   <td style="text-align:right;"> 27.6 (5.4) </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
-   <td style="text-align:right;"> 21.6 (16.6, 27.3) </td>
-   <td style="text-align:right;"> 28.1 (25.1, 30.7) </td>
-   <td style="text-align:right;"> 11.4 (8.9, 14.7) </td>
-   <td style="text-align:right;"> 15.1 (12.0, 16.3) </td>
-   <td style="text-align:right;"> 21.9 (18.9, 25.6) </td>
-   <td style="text-align:right;"> 21.9 (19.8, 23.9) </td>
-   <td style="text-align:right;"> 25.7 (22.3, 28.3) </td>
-   <td style="text-align:right;"> 18.7 (15.1, 20.2) </td>
-   <td style="text-align:right;"> 19.9 (16.5, 23.8) </td>
-   <td style="text-align:right;"> 24.6 (20.3, 27.5) </td>
-   <td style="text-align:right;"> 18.5 (15.0, 19.9) </td>
-   <td style="text-align:right;"> 33.2 (29.7, 38.1) </td>
-   <td style="text-align:right;"> 28.2 (24.4, 33.2) </td>
+   <td style="text-align:right;"> 21.6 (16.5, 27.3) </td>
+   <td style="text-align:right;"> 28.0 (25.3, 30.7) </td>
+   <td style="text-align:right;"> 11.5 (8.8, 14.7) </td>
+   <td style="text-align:right;"> 15.1 (12.4, 16.4) </td>
+   <td style="text-align:right;"> 22.3 (18.9, 26.0) </td>
+   <td style="text-align:right;"> 21.8 (19.8, 23.9) </td>
+   <td style="text-align:right;"> 25.6 (21.9, 28.8) </td>
+   <td style="text-align:right;"> 17.6 (14.0, 20.1) </td>
+   <td style="text-align:right;"> 20.0 (16.5, 23.7) </td>
+   <td style="text-align:right;"> 24.9 (20.8, 27.7) </td>
+   <td style="text-align:right;"> 18.2 (15.0, 19.9) </td>
+   <td style="text-align:right;"> 33.7 (30.2, 39.2) </td>
+   <td style="text-align:right;"> 27.3 (24.0, 30.3) </td>
   </tr>
   <tr>
    <td style="text-align:left;"> <span style="font-weight: bold;">duration hours</span> </td>
@@ -256,35 +256,35 @@ covs=c('distance_km','duration_hours'))
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Mean (sd) </td>
-   <td style="text-align:right;"> 0.8 (0.5) </td>
-   <td style="text-align:right;"> 0.9 (0.5) </td>
-   <td style="text-align:right;"> 0.6 (0.4) </td>
+   <td style="text-align:right;"> 1.1 (0.5) </td>
+   <td style="text-align:right;"> 1.2 (0.5) </td>
    <td style="text-align:right;"> 0.7 (0.4) </td>
    <td style="text-align:right;"> 0.8 (0.4) </td>
-   <td style="text-align:right;"> 0.9 (0.6) </td>
-   <td style="text-align:right;"> 1.0 (0.6) </td>
-   <td style="text-align:right;"> 0.8 (0.3) </td>
-   <td style="text-align:right;"> 0.8 (0.4) </td>
    <td style="text-align:right;"> 1.0 (0.5) </td>
-   <td style="text-align:right;"> 0.8 (0.3) </td>
+   <td style="text-align:right;"> 1.1 (0.6) </td>
    <td style="text-align:right;"> 1.1 (0.6) </td>
    <td style="text-align:right;"> 0.9 (0.4) </td>
+   <td style="text-align:right;"> 1.0 (0.5) </td>
+   <td style="text-align:right;"> 1.3 (0.5) </td>
+   <td style="text-align:right;"> 0.9 (0.2) </td>
+   <td style="text-align:right;"> 1.6 (0.8) </td>
+   <td style="text-align:right;"> 1.2 (0.4) </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
-   <td style="text-align:right;"> 0.7 (0.5, 1.1) </td>
-   <td style="text-align:right;"> 0.9 (0.5, 1.4) </td>
-   <td style="text-align:right;"> 0.6 (0.3, 0.7) </td>
-   <td style="text-align:right;"> 0.6 (0.5, 0.8) </td>
-   <td style="text-align:right;"> 0.8 (0.4, 1.1) </td>
-   <td style="text-align:right;"> 0.8 (0.5, 1.1) </td>
-   <td style="text-align:right;"> 0.9 (0.5, 1.2) </td>
+   <td style="text-align:right;"> 1.1 (0.6, 1.4) </td>
+   <td style="text-align:right;"> 1.4 (0.9, 1.5) </td>
+   <td style="text-align:right;"> 0.7 (0.3, 0.8) </td>
    <td style="text-align:right;"> 0.8 (0.5, 1.0) </td>
-   <td style="text-align:right;"> 0.8 (0.4, 1.1) </td>
-   <td style="text-align:right;"> 0.9 (0.6, 1.3) </td>
-   <td style="text-align:right;"> 0.7 (0.6, 1.0) </td>
-   <td style="text-align:right;"> 1.0 (0.7, 1.4) </td>
-   <td style="text-align:right;"> 0.8 (0.6, 1.3) </td>
+   <td style="text-align:right;"> 1.1 (0.5, 1.4) </td>
+   <td style="text-align:right;"> 1.2 (0.6, 1.3) </td>
+   <td style="text-align:right;"> 1.2 (0.5, 1.4) </td>
+   <td style="text-align:right;"> 1.0 (0.5, 1.2) </td>
+   <td style="text-align:right;"> 1.1 (0.6, 1.3) </td>
+   <td style="text-align:right;"> 1.4 (0.8, 1.7) </td>
+   <td style="text-align:right;"> 0.9 (0.7, 1.1) </td>
+   <td style="text-align:right;"> 1.5 (0.9, 2.4) </td>
+   <td style="text-align:right;"> 1.3 (0.8, 1.6) </td>
   </tr>
 </tbody>
 </table>
@@ -294,7 +294,7 @@ Across of the stations the longest travel time on average was Surrey Central Sta
 ##### Table 3. Descriptive statisics for travel time and mode by trip type
 
 
-```r
+``` r
 rm_covsum(data=data, maincov = 'mode', pvalue = FALSE, IQR = TRUE,
 covs=c('distance_km','duration_hours'))
 ```
@@ -321,19 +321,19 @@ covs=c('distance_km','duration_hours'))
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Mean (sd) </td>
-   <td style="text-align:right;"> 22.2 (7.8) </td>
-   <td style="text-align:right;"> 20.6 (7.0) </td>
-   <td style="text-align:right;"> 25.3 (7.3) </td>
-   <td style="text-align:right;"> 22.1 (9.1) </td>
-   <td style="text-align:right;"> 21.0 (6.8) </td>
+   <td style="text-align:right;"> 22.1 (7.8) </td>
+   <td style="text-align:right;"> 20.6 (7.1) </td>
+   <td style="text-align:right;"> 25.4 (7.6) </td>
+   <td style="text-align:right;"> 21.2 (8.3) </td>
+   <td style="text-align:right;"> 21.2 (7.0) </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
-   <td style="text-align:right;"> 21.6 (16.6, 27.3) </td>
-   <td style="text-align:right;"> 20.0 (16.2, 25.2) </td>
-   <td style="text-align:right;"> 25.5 (19.9, 29.2) </td>
-   <td style="text-align:right;"> 20.3 (15.5, 28.2) </td>
-   <td style="text-align:right;"> 20.6 (16.2, 26.0) </td>
+   <td style="text-align:right;"> 21.6 (16.5, 27.3) </td>
+   <td style="text-align:right;"> 20.0 (15.5, 25.1) </td>
+   <td style="text-align:right;"> 25.6 (19.9, 29.3) </td>
+   <td style="text-align:right;"> 19.9 (14.8, 26.5) </td>
+   <td style="text-align:right;"> 21.0 (16.2, 25.9) </td>
   </tr>
   <tr>
    <td style="text-align:left;"> <span style="font-weight: bold;">duration hours</span> </td>
@@ -345,17 +345,17 @@ covs=c('distance_km','duration_hours'))
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Mean (sd) </td>
-   <td style="text-align:right;"> 0.8 (0.5) </td>
+   <td style="text-align:right;"> 1.1 (0.5) </td>
    <td style="text-align:right;"> 1.2 (0.4) </td>
-   <td style="text-align:right;"> 0.6 (0.3) </td>
+   <td style="text-align:right;"> 1.5 (0.5) </td>
    <td style="text-align:right;"> 0.5 (0.1) </td>
-   <td style="text-align:right;"> 1.2 (0.5) </td>
+   <td style="text-align:right;"> 1.1 (0.5) </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median (Q1,Q3) </td>
-   <td style="text-align:right;"> 0.7 (0.5, 1.1) </td>
+   <td style="text-align:right;"> 1.1 (0.6, 1.4) </td>
    <td style="text-align:right;"> 1.2 (0.9, 1.4) </td>
-   <td style="text-align:right;"> 0.6 (0.4, 0.7) </td>
+   <td style="text-align:right;"> 1.4 (1.1, 1.7) </td>
    <td style="text-align:right;"> 0.5 (0.4, 0.6) </td>
    <td style="text-align:right;"> 1.1 (0.9, 1.3) </td>
   </tr>
@@ -368,7 +368,7 @@ On average across all modes the trip duration was 48 minutes with a mean distanc
 ##### Table 4. Descriptive statisics for physical activity contribution
 
 
-```r
+``` r
 rm_covsum(data=data_bike, pvalue = FALSE, IQR = TRUE,
 covs=c('bike_to_station_duration_hours'))
 ```
@@ -401,7 +401,7 @@ On average the bike to the transit station was 18minutes long with an interquart
 ##### Figure 4. Visualization of travel time by mode and city
 
 
-```r
+``` r
 viz <- ggplot(data, aes(x = duration_hours, y = mode, fill = mode)) +
   geom_density_ridges() + 
   stat_density_ridges(quantile_lines = TRUE, alpha = 0.75, quantiles = 2) +
@@ -415,7 +415,7 @@ plot(viz)
 
 ![](data_analysis_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
-```r
+``` r
 ggsave("viz.pdf", dpi = 300, height = 5, width = 8)
 ```
 
