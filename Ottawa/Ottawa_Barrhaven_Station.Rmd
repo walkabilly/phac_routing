@@ -2,7 +2,8 @@
 title: "Google Routing"
 output:
   html_document:
-    keep_md: yes
+    keep_md: true
+  pdf_document: default
 date: "2023-12-20"
 ---
 
@@ -42,7 +43,7 @@ origin <- "Barrhaven Center Station, Ottawa, Canada"    #### EDIT ME
 June 22, 2024
 
 ```{r}
-arrival_time <- as.POSIXct("2024-06-25 08:30:00", tz = "America/Toronto")       #### EDIT ME
+arrival_time <- as.POSIXct("2024-09-24 08:30:00", tz = "America/Toronto")       #### EDIT ME
 ```
 
 ```{r}
@@ -507,9 +508,9 @@ distance_duration_transit__bike$distance_meters <- distance_duration_transit__bi
 distance_duration_transit__bike$transit_to_location_duration_seconds <- duration_transit_bike
 distance_duration_transit__bike$transit_to_location_duration_hours <- distance_duration_transit__bike$transit_to_location_duration_seconds / 3600
 
-distance_duration_transit__bike$duration_hours <- distance_duration_transit__bike$bike_to_station_duration_hours + distance_duration_transit__bike$bike_to_station_duration_hours
+distance_duration_transit__bike$duration_hours <- distance_duration_transit__bike$bike_to_station_duration_hours + distance_duration_transit__bike$transit_to_location_duration_hours
 
-distance_duration_transit__bike$duration_seconds <- distance_duration_transit__bike$bike_to_station_duration_seconds + distance_duration_transit__bike$bike_to_station_duration_seconds
+distance_duration_transit__bike$duration_seconds <- distance_duration_transit__bike$bike_to_station_duration_seconds + distance_duration_transit__bike$transit_to_location_duration_seconds
 
 distance_duration_transit_bike <- select(distance_duration_transit__bike, route, distance_meters, duration_hours, distance_km, duration_hours, duration_seconds)
 ```

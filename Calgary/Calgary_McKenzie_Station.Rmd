@@ -40,19 +40,19 @@ origin <- "McKenzie Towne, Calgary, Canada"    #### EDIT ME
 #### Setup departure location and arrival time
 
 ```{r}
-arrival_time <- as.POSIXct("2024-06-11 08:30:00", tz = "America/Calgary")       #### EDIT ME
+arrival_time <- as.POSIXct("2024-09-24 08:30:00", tz = "America/Calgary")       #### EDIT ME
 ```
 
 #### List of variables for geocoding
 
 ```{r}
-var_list <- c("var1", "var2", "var3", "var4", "var5", "var6", "var7", "var8", "var9", "var10", "var11", "var12", "var13", "var14", "var15", "var16", "var17", "var18", "var19", "var20", "var21", "var22", "var23", "var24")
+var_list <- c("var1", "var2", "var3", "var4", "var5", "var6", "var7", "var8", "var9", "var10", "var11", "var12", "var13", "var14", "var15", "var16", "var17", "var18", "var19", "var20", "var21", "var22", "var23", "var24") #### EDIT ME
 ```
 
 #### Seed
 
 ```{r}
-seed <- c(101)
+seed <- c(101)    #### EDIT ME
 ```
 
 ```{r}
@@ -517,9 +517,9 @@ distance_duration_transit__bike$distance_meters <- distance_duration_transit__bi
 distance_duration_transit__bike$transit_to_location_duration_seconds <- duration_transit_bike
 distance_duration_transit__bike$transit_to_location_duration_hours <- distance_duration_transit__bike$transit_to_location_duration_seconds / 3600
 
-distance_duration_transit__bike$duration_hours <- distance_duration_transit__bike$bike_to_station_duration_hours + distance_duration_transit__bike$bike_to_station_duration_hours
+distance_duration_transit__bike$duration_hours <- distance_duration_transit__bike$bike_to_station_duration_hours + distance_duration_transit__bike$transit_to_location_duration_hours
 
-distance_duration_transit__bike$duration_seconds <- distance_duration_transit__bike$bike_to_station_duration_seconds + distance_duration_transit__bike$bike_to_station_duration_seconds
+distance_duration_transit__bike$duration_seconds <- distance_duration_transit__bike$bike_to_station_duration_seconds + distance_duration_transit__bike$transit_to_location_duration_seconds
 
 distance_duration_transit_bike <- select(distance_duration_transit__bike, route, distance_meters, duration_hours, distance_km, duration_hours, duration_seconds)
 ```
